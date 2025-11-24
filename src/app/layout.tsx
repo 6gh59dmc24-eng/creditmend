@@ -1,18 +1,21 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Providers } from "@/components/providers";
-import { GoogleAnalyticsScript, PerformanceMonitor } from "@/components/analytics";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+import { Providers } from '@/components/providers';
+import {
+  GoogleAnalyticsScript,
+  PerformanceMonitor,
+} from '@/components/analytics';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
   display: 'swap',
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
   display: 'swap',
 });
 
@@ -20,7 +23,8 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
   name: 'Credit Repair CRM',
-  description: 'Professional credit repair business management system with client management, dispute tracking, and analytics',
+  description:
+    'Professional credit repair business management system with client management, dispute tracking, and analytics',
   url: 'https://creditrepaircrm.com',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
@@ -44,10 +48,12 @@ const jsonLd = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'Credit Repair CRM - Professional Credit Repair Business Management',
-    template: '%s | Credit Repair CRM'
+    default:
+      'Credit Repair CRM - Professional Credit Repair Business Management',
+    template: '%s | Credit Repair CRM',
   },
-  description: 'Streamline your credit repair business with our comprehensive CRM solution. Manage clients, track disputes, automate workflows, and grow your business with powerful analytics.',
+  description:
+    'Streamline your credit repair business with our comprehensive CRM solution. Manage clients, track disputes, automate workflows, and grow your business with powerful analytics.',
   keywords: [
     'credit repair CRM',
     'credit repair software',
@@ -56,7 +62,7 @@ export const metadata: Metadata = {
     'dispute tracking',
     'credit repair automation',
     'credit bureau disputes',
-    'credit repair business tools'
+    'credit repair business tools',
   ],
   authors: [{ name: 'Credit Repair CRM' }],
   creator: 'Credit Repair CRM',
@@ -75,7 +81,8 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://creditrepaircrm.com',
     title: 'Credit Repair CRM - Professional Credit Repair Business Management',
-    description: 'Streamline your credit repair business with our comprehensive CRM solution. Manage clients, track disputes, and grow your business.',
+    description:
+      'Streamline your credit repair business with our comprehensive CRM solution. Manage clients, track disputes, and grow your business.',
     siteName: 'Credit Repair CRM',
     images: [
       {
@@ -89,7 +96,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Credit Repair CRM - Professional Credit Repair Business Management',
-    description: 'Streamline your credit repair business with our comprehensive CRM solution.',
+    description:
+      'Streamline your credit repair business with our comprehensive CRM solution.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -106,6 +114,12 @@ export const metadata: Metadata = {
   verification: {
     google: 'your-google-verification-code',
     yandex: 'your-yandex-verification-code',
+  },
+  manifest: '/manifest.json',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
   },
 };
 
@@ -124,11 +138,8 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Providers>
-          {children}
-        </Providers>
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Providers>{children}</Providers>
         <PerformanceMonitor />
       </body>
     </html>
