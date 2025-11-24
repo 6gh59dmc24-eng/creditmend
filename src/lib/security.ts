@@ -112,24 +112,44 @@ export class SecurityUtils {
 
   // CSRF Protection
   static generateCSRFToken(): string {
+    // Fallback for Edge runtime where crypto.randomBytes might not be available
+    if (typeof crypto.randomBytes !== 'function') {
+      return Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
     return crypto.randomBytes(32).toString('hex');
   }
 
-  static validateCSRFToken(token: string, sessionToken: string): boolean {
+  static async validateCSRFToken(
+    token: string,
+    sessionToken: string
+  ): Promise<boolean> {
     // In production, validate against stored session token
-    const expectedToken = crypto
-      .createHmac('sha256', sessionToken)
-      .update('csrf-protection')
-      .digest('hex');
+    const msgBuffer = new TextEncoder().encode('csrf-protection');
+    const keyBuffer = new TextEncoder().encode(sessionToken);
 
-    return crypto.timingSafeEqual(
-      Buffer.from(token),
-      Buffer.from(expectedToken)
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyBuffer,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
     );
+
+    const signature = await crypto.subtle.sign('HMAC', key, msgBuffer);
+    const expectedToken = Buffer.from(signature).toString('hex');
+
+    return token === expectedToken;
   }
 
   // Secure random token generation
   static generateSecureToken(length: number = 32): string {
+    if (typeof crypto.randomBytes !== 'function') {
+      return Array.from(crypto.getRandomValues(new Uint8Array(length)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
     return crypto.randomBytes(length).toString('hex');
   }
 
@@ -138,10 +158,36 @@ export class SecurityUtils {
     password: string,
     salt?: string
   ): Promise<{ hash: string; salt: string }> {
-    const generatedSalt = salt || crypto.randomBytes(16).toString('hex');
-    const hash = crypto
-      .pbkdf2Sync(password, generatedSalt, 100000, 64, 'sha512')
-      .toString('hex');
+    const enc = new TextEncoder();
+    const generatedSalt =
+      salt ||
+      Array.from(crypto.getRandomValues(new Uint8Array(16)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(password),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveBits', 'deriveKey']
+    );
+
+    const key = await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: enc.encode(generatedSalt),
+        iterations: 100000,
+        hash: 'SHA-512',
+      },
+      keyMaterial,
+      { name: 'HMAC', hash: 'SHA-512', length: 512 },
+      true,
+      ['sign', 'verify']
+    );
+
+    const exportedKey = await crypto.subtle.exportKey('raw', key);
+    const hash = Buffer.from(exportedKey).toString('hex');
 
     return { hash, salt: generatedSalt };
   }
@@ -151,17 +197,38 @@ export class SecurityUtils {
     hash: string,
     salt: string
   ): Promise<boolean> {
-    const verifyHash = crypto
-      .pbkdf2Sync(password, salt, 100000, 64, 'sha512')
-      .toString('hex');
-
-    return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(verifyHash));
+    const { hash: verifyHash } = await this.hashPassword(password, salt);
+    return hash === verifyHash;
   }
 
   // Data encryption for sensitive data
-  static encrypt(text: string, key: string): string {
+  static async encrypt(text: string, key: string): Promise<string> {
+    if (typeof window !== 'undefined' || !crypto.createCipher) {
+      // Use Web Crypto API for Edge/Browser
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(key),
+        'AES-CBC',
+        false,
+        ['encrypt']
+      );
+      const iv = crypto.getRandomValues(new Uint8Array(16));
+      const encrypted = await crypto.subtle.encrypt(
+        { name: 'AES-CBC', iv },
+        keyMaterial,
+        enc.encode(text)
+      );
+
+      return (
+        Buffer.from(iv).toString('hex') +
+        ':' +
+        Buffer.from(encrypted).toString('hex')
+      );
+    }
+
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipher('aes-256-cbc', key);
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
     cipher.setAutoPadding(true);
 
     let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -170,12 +237,40 @@ export class SecurityUtils {
     return iv.toString('hex') + ':' + encrypted;
   }
 
-  static decrypt(encryptedText: string, key: string): string {
+  static async decrypt(encryptedText: string, key: string): Promise<string> {
+    if (typeof window !== 'undefined' || !crypto.createDecipheriv) {
+      // Use Web Crypto API for Edge/Browser
+      const parts = encryptedText.split(':');
+      const iv = Buffer.from(parts[0], 'hex');
+      const data = Buffer.from(parts[1], 'hex');
+
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(key),
+        'AES-CBC',
+        false,
+        ['decrypt']
+      );
+
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-CBC', iv },
+        keyMaterial,
+        data
+      );
+
+      return new TextDecoder().decode(decrypted);
+    }
+
     const textParts = encryptedText.split(':');
     const iv = Buffer.from(textParts[0], 'hex');
     const encrypted = textParts[1];
 
-    const decipher = crypto.createDecipher('aes-256-cbc', key);
+    const decipher = crypto.createDecipheriv(
+      'aes-256-cbc',
+      Buffer.from(key),
+      iv
+    );
     decipher.setAutoPadding(true);
 
     let decrypted = decipher.update(encrypted, 'hex', 'utf8');
@@ -243,6 +338,11 @@ export class SecurityUtils {
 
   // Session security
   static generateSessionId(): string {
+    if (typeof crypto.randomBytes !== 'function') {
+      return Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
     return crypto.randomBytes(32).toString('hex');
   }
 
@@ -314,6 +414,11 @@ export class SecurityUtils {
 
   // Content Security Policy helpers
   static getCSPNonce(): string {
+    if (typeof crypto.randomBytes !== 'function') {
+      return Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString(
+        'base64'
+      );
+    }
     return crypto.randomBytes(16).toString('base64');
   }
 

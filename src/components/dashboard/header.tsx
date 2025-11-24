@@ -19,7 +19,7 @@ export function Header({ user }: HeaderProps) {
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="px-4 md:px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <MobileSidebar userRole={user.role} />
+          <MobileSidebar userRole={user.role || 'CLIENT'} />
           <div>
             <h1 className="text-lg md:text-xl font-semibold text-gray-800">
               Welcome back, {user.name || user.email}
