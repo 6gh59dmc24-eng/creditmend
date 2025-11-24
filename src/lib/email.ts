@@ -39,7 +39,7 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
               <p>Your account has been successfully activated. We are committed to helping you improve your credit score and achieve your financial goals.</p>
               <p>You can now access your dashboard to track your progress, upload documents, and view your reports.</p>
               <div style="text-align: center;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://onboard.creditmend.org'}/dashboard" class="button">Go to Dashboard</a>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://creditmend.org'}/dashboard" class="button">Go to Dashboard</a>
               </div>
               <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
               <p>Best regards,<br>The CreditMend Team</p>

@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/admin/', '/_next/', '/static/'],
     },
-    sitemap: 'https://onboard.creditmend.org/sitemap.xml',
+    sitemap: 'https://creditmend.org/sitemap.xml',
   };
 }
