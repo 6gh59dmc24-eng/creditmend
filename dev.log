@@ -1,0 +1,54 @@
+
+> credit-repair-crm@0.1.0 dev
+> next dev
+
+   ▲ Next.js 16.0.3 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://172.16.224.9:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+ ✓ Ready in 315ms
+ GET / 200 in 962ms (compile: 877ms, proxy.ts: 22ms, render: 63ms)
+ GET / 200 in 43ms (compile: 4ms, proxy.ts: 6ms, render: 33ms)
+ GET /api/auth/session 200 in 471ms (compile: 459ms, render: 12ms)
+ GET /api/auth/session 200 in 6ms (compile: 2ms, render: 4ms)
+ GET /auth/signup 200 in 187ms (compile: 171ms, proxy.ts: 9ms, render: 7ms)
+ GET /auth/signin 200 in 146ms (compile: 134ms, proxy.ts: 5ms, render: 7ms)
+ GET /api/auth/providers 200 in 21ms (compile: 9ms, render: 12ms)
+ GET /api/auth/csrf 200 in 9ms (compile: 3ms, render: 6ms)
+ POST /api/auth/callback/credentials 200 in 8ms (compile: 1144µs, render: 7ms)
+ GET /api/auth/session 200 in 6ms (compile: 878µs, render: 5ms)
+ GET /dashboard 200 in 154ms (compile: 140ms, proxy.ts: 1578µs, render: 12ms)
+ GET /dashboard/profile 200 in 148ms (compile: 135ms, proxy.ts: 7ms, render: 6ms)
+ GET /dashboard/documents 200 in 149ms (compile: 138ms, proxy.ts: 5ms, render: 6ms)
+ ⨯ ./src/app/dashboard/messages/page.tsx:349:20
+Parsing ecmascript source code failed
+[0m [90m 347 |[39m                 [33m<[39m[33m/[39m[33mButton[39m[33m>[39m
+ [90m 348 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 349 |[39m               [33m<[39m[33mdiv[39m className[33m=[39m[32m"text-sm text-gray-600 mb-2"[39m[33m>[39m
+ [90m     |[39m                    [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 350 |[39m                 [33mOriginal[39m message[33m:[39m [32m"{messages.find(m => m.id === selectedMessage)?.content}"[39m
+ [90m 351 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 352 |[39m             [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+
+Expected '</', got 'className'
+
+
+ GET /dashboard/messages 500 in 421ms (compile: 377ms, proxy.ts: 6ms, render: 38ms)
+ ⨯ ./src/app/dashboard/messages/page.tsx:349:20
+Parsing ecmascript source code failed
+[0m [90m 347 |[39m                 [33m<[39m[33m/[39m[33mButton[39m[33m>[39m
+ [90m 348 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 349 |[39m               [33m<[39m[33mdiv[39m className[33m=[39m[32m"text-sm text-gray-600 mb-2"[39m[33m>[39m
+ [90m     |[39m                    [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 350 |[39m                 [33mOriginal[39m message[33m:[39m [32m"{messages.find(m => m.id === selectedMessage)?.content}"[39m
+ [90m 351 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 352 |[39m             [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+
+Expected '</', got 'className'
+
+
+ GET /dashboard/messages 500 in 10ms (compile: 4ms, proxy.ts: 1517µs, render: 4ms)
+[?25h
