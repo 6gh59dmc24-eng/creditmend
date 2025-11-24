@@ -111,7 +111,7 @@ export class SecurityUtils {
   // CSRF Protection
   static generateCSRFToken(): string {
     const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
+    globalThis.crypto.getRandomValues(array);
     return Array.from(array)
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
@@ -122,7 +122,7 @@ export class SecurityUtils {
     const msgBuffer = new TextEncoder().encode('csrf-protection');
     const keyBuffer = new TextEncoder().encode(sessionToken);
     
-    const key = await crypto.subtle.importKey(
+    const key = await globalThis.crypto.subtle.importKey(
       'raw',
       keyBuffer,
       { name: 'HMAC', hash: 'SHA-256' },
@@ -130,7 +130,7 @@ export class SecurityUtils {
       ['sign']
     );
     
-    const signature = await crypto.subtle.sign('HMAC', key, msgBuffer);
+    const signature = await globalThis.crypto.subtle.sign('HMAC', key, msgBuffer);
     const expectedToken = Array.from(new Uint8Array(signature))
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
@@ -141,7 +141,7 @@ export class SecurityUtils {
   // Secure random token generation
   static generateSecureToken(length: number = 32): string {
     const array = new Uint8Array(length);
-    crypto.getRandomValues(array);
+    globalThis.crypto.getRandomValues(array);
     return Array.from(array)
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
@@ -187,11 +187,11 @@ export class SecurityUtils {
     salt?: string
   ): Promise<{ hash: string; salt: string }> {
     const enc = new TextEncoder();
-    const generatedSalt = salt || Array.from(crypto.getRandomValues(new Uint8Array(16)))
+    const generatedSalt = salt || Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)))
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
       
-    const keyMaterial = await crypto.subtle.importKey(
+    const keyMaterial = await globalThis.crypto.subtle.importKey(
       'raw',
       enc.encode(password),
       { name: 'PBKDF2' },
@@ -199,7 +199,7 @@ export class SecurityUtils {
       ['deriveBits', 'deriveKey']
     );
     
-    const key = await crypto.subtle.deriveKey(
+    const key = await globalThis.crypto.subtle.deriveKey(
       {
         name: 'PBKDF2',
         salt: enc.encode(generatedSalt),
@@ -212,7 +212,7 @@ export class SecurityUtils {
       ['sign', 'verify']
     );
     
-    const exportedKey = await crypto.subtle.exportKey('raw', key);
+    const exportedKey = await globalThis.crypto.subtle.exportKey('raw', key);
     const hash = Array.from(new Uint8Array(exportedKey))
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
@@ -232,15 +232,15 @@ export class SecurityUtils {
   // Data encryption for sensitive data
   static async encrypt(text: string, key: string): Promise<string> {
     const enc = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey(
+    const keyMaterial = await globalThis.crypto.subtle.importKey(
       'raw',
       enc.encode(key),
       'AES-CBC',
       false,
       ['encrypt']
     );
-    const iv = crypto.getRandomValues(new Uint8Array(16));
-    const encrypted = await crypto.subtle.encrypt(
+    const iv = globalThis.crypto.getRandomValues(new Uint8Array(16));
+    const encrypted = await globalThis.crypto.subtle.encrypt(
       { name: 'AES-CBC', iv },
       keyMaterial,
       enc.encode(text)
@@ -265,7 +265,7 @@ export class SecurityUtils {
     const data = new Uint8Array(dataMatch);
     
     const enc = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey(
+    const keyMaterial = await globalThis.crypto.subtle.importKey(
       'raw',
       enc.encode(key),
       'AES-CBC',
@@ -273,7 +273,7 @@ export class SecurityUtils {
       ['decrypt']
     );
     
-    const decrypted = await crypto.subtle.decrypt(
+    const decrypted = await globalThis.crypto.subtle.decrypt(
       { name: 'AES-CBC', iv },
       keyMaterial,
       data
@@ -394,7 +394,7 @@ export class SecurityUtils {
   // Session security
   static generateSessionId(): string {
     const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
+    globalThis.crypto.getRandomValues(array);
     return Array.from(array)
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
@@ -469,7 +469,7 @@ export class SecurityUtils {
   // Content Security Policy helpers
   static getCSPNonce(): string {
     const array = new Uint8Array(16);
-    crypto.getRandomValues(array);
+    globalThis.crypto.getRandomValues(array);
     return btoa(String.fromCharCode(...array));
   }
     return crypto.randomBytes(16).toString('base64');
