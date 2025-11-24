@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
-import { sendWelcomeEmail } from '@/lib/email';
+import { sendVerificationEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -74,13 +74,21 @@ export async function POST(request: NextRequest) {
 
     console.log('Client profile created');
 
-    // Send welcome email (non-blocking)
-    sendWelcomeEmail(user.email, user.name || 'Valued Client').catch(err => {
-      console.error('Email error (non-blocking):', err);
-    });
+    // Send verification email
+    const emailResult = await sendVerificationEmail(user.email, user.name || 'Valued Client', user.id);
+
+    if (!emailResult.success) {
+      console.error('Failed to send verification email:', emailResult.error);
+      // Continue anyway - user is created
+    } else {
+      console.log('Verification email sent successfully');
+    }
 
     return NextResponse.json(
-      { message: 'User created successfully' },
+      {
+        message: 'User created successfully. Please check your email to verify your account.',
+        emailSent: emailResult.success
+      },
       { status: 201 }
     );
   } catch (error) {
