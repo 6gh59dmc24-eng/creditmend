@@ -14,17 +14,49 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        passkeyVerified: { label: 'Passkey Verified', type: 'text' },
+        userId: { label: 'User ID', type: 'text' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          console.log('Missing credentials');
-          return null;
-        }
-
         try {
-          // Import bcrypt and prisma dynamically to avoid issues
-          const bcrypt = await import('bcryptjs');
           const { prisma } = await import('@/lib/prisma');
+
+          // Passkey authentication flow
+          if (credentials?.passkeyVerified === 'true' && credentials?.userId) {
+            console.log('Passkey authentication for user:', credentials.userId);
+
+            const user = await prisma.user.findUnique({
+              where: { id: credentials.userId },
+              include: {
+                clientProfile: true,
+                staffProfile: true,
+              },
+            });
+
+            if (!user) {
+              console.log('User not found for passkey auth:', credentials.userId);
+              return null;
+            }
+
+            console.log('Passkey login successful for:', user.email);
+
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              clientProfile: user.clientProfile,
+              staffProfile: user.staffProfile,
+            };
+          }
+
+          // Password authentication flow
+          if (!credentials?.email || !credentials?.password) {
+            console.log('Missing credentials');
+            return null;
+          }
+
+          const bcrypt = await import('bcryptjs');
 
           console.log('Attempting login for:', credentials.email);
 
