@@ -1,8 +1,9 @@
 import { StatsGrid } from '@/components/dashboard/stats-grid';
 import { CreditScoreGauge } from '@/components/dashboard/credit-score-gauge';
 import { AccountList } from '@/components/dashboard/account-list';
+import { AiFinancialCoach } from '@/components/dashboard/ai-financial-coach';
 import { Button } from '@/components/ui/button';
-import { Bell, ChevronDown } from 'lucide-react';
+import { Bell, ChevronDown, Search } from 'lucide-react';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
@@ -159,6 +160,11 @@ export default async function DashboardPage() {
 
             {/* Stats Grid */}
             <StatsGrid stats={stats} />
+
+            {/* AI Coach Widget */}
+            <div className="mt-8">
+              <AiFinancialCoach />
+            </div>
           </div>
 
           {/* Right Column: Action Items & Accounts */}

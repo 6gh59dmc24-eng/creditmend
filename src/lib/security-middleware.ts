@@ -79,9 +79,18 @@ export function middleware(request: NextRequest) {
       process.env.NEXT_PUBLIC_APP_URL,
       'http://localhost:3000',
       'https://localhost:3000',
+      'https://creditmend.org',
+      'https://www.creditmend.org',
     ].filter(Boolean);
 
-    if (origin && !allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (server-to-server or same-origin sometimes)
+    // or if the origin is in the allowed list
+    if (
+      origin &&
+      !allowedOrigins.some(
+        allowed => origin === allowed || origin.startsWith(allowed!)
+      )
+    ) {
       SecurityUtils.logSecurityEvent(
         'CORS_VIOLATION',
         undefined,
