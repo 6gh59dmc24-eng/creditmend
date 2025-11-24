@@ -25,7 +25,7 @@ const jsonLd = {
   name: 'Credit Repair CRM',
   description:
     'Professional credit repair business management system with client management, dispute tracking, and analytics',
-  url: 'https://creditrepaircrm.com',
+  url: 'https://creditmend.org',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   offers: {
@@ -42,7 +42,7 @@ const jsonLd = {
   creator: {
     '@type': 'Organization',
     name: 'Credit Repair CRM',
-    url: 'https://creditrepaircrm.com',
+    url: 'https://creditmend.org',
   },
 };
 
@@ -72,14 +72,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://creditrepaircrm.com'),
+  metadataBase: new URL('https://creditmend.org'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://creditrepaircrm.com',
+    url: 'https://creditmend.org',
     title: 'Credit Repair CRM - Professional Credit Repair Business Management',
     description:
       'Streamline your credit repair business with our comprehensive CRM solution. Manage clients, track disputes, and grow your business.',
