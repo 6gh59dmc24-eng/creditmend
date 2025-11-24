@@ -1,10 +1,13 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // Output standalone for Docker
+  output: 'standalone',
+
   // Performance optimizations
   compress: true,
   poweredByHeader: false,
-  
+
   // Image optimization
   images: {
     formats: ['image/webp', 'image/avif'],
@@ -12,18 +15,18 @@ const nextConfig: NextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  
+
   // Experimental features for performance
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['lucide-react', '@radix-ui/react-slot'],
   },
-  
+
   // Compiler optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  
+
   // Headers for security and caching (OWASP Compliance)
   async headers() {
     return [
@@ -33,7 +36,8 @@ const nextConfig: NextConfig = {
           // Content Security Policy
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.stripe.com https://js.stripe.com; frame-ancestors 'none';",
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.stripe.com https://js.stripe.com; frame-ancestors 'none';",
           },
           // XSS Protection
           {
@@ -56,14 +60,19 @@ const nextConfig: NextConfig = {
             value: 'strict-origin-when-cross-origin',
           },
           // HSTS (HTTPS only)
-          ...(process.env.NODE_ENV === 'production' ? [{
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains; preload',
-          }] : []),
+          ...(process.env.NODE_ENV === 'production'
+            ? [
+                {
+                  key: 'Strict-Transport-Security',
+                  value: 'max-age=31536000; includeSubDomains; preload',
+                },
+              ]
+            : []),
           // Permissions Policy
           {
             key: 'Permissions-Policy',
-            value: 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=()',
+            value:
+              'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=()',
           },
         ],
       },
@@ -110,7 +119,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  
+
   // Redirects for SEO
   async redirects() {
     return [
