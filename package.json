@@ -38,6 +38,8 @@
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-progress": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
+    "@simplewebauthn/browser": "^13.2.2",
+    "@simplewebauthn/server": "^13.2.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^7.0.4",
     "ai": "^5.0.101",

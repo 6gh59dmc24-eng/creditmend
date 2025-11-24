@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -67,7 +68,23 @@ export default function SignUpPage() {
       if (response.ok) {
         const data = await response.json();
         console.log('Signup success:', data);
-        router.push('/auth/signin?message=Account created successfully. Please check your email to verify your account.');
+
+        // Auto-login after successful signup
+        console.log('Auto-logging in...');
+        const loginResult = await signIn('credentials', {
+          email: formData.email,
+          password: formData.password,
+          redirect: false,
+        });
+
+        if (loginResult?.error) {
+          console.error('Auto-login failed:', loginResult.error);
+          // Fallback to signin page
+          router.push('/auth/signin?message=Account created successfully. Please login.');
+        } else {
+          console.log('Auto-login successful, redirecting to dashboard...');
+          router.push('/dashboard');
+        }
       } else {
         const data = await response.json();
         console.error('Signup error:', data);

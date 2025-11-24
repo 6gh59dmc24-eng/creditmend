@@ -74,20 +74,25 @@ export async function POST(request: NextRequest) {
 
     console.log('Client profile created');
 
-    // Send verification email
-    const emailResult = await sendVerificationEmail(user.email, user.name || 'Valued Client', user.id);
+    // Send verification email (non-blocking)
+    sendVerificationEmail(user.email, user.name || 'Valued Client', user.id).then(emailResult => {
+      if (!emailResult.success) {
+        console.error('Failed to send verification email:', emailResult.error);
+      } else {
+        console.log('Verification email sent successfully');
+      }
+    });
 
-    if (!emailResult.success) {
-      console.error('Failed to send verification email:', emailResult.error);
-      // Continue anyway - user is created
-    } else {
-      console.log('Verification email sent successfully');
-    }
-
+    // Return user data for auto-login
     return NextResponse.json(
       {
-        message: 'User created successfully. Please check your email to verify your account.',
-        emailSent: emailResult.success
+        message: 'User created successfully',
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
       },
       { status: 201 }
     );
