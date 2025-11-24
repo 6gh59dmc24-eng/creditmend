@@ -15,11 +15,11 @@ import {
   FolderOpen
 } from "lucide-react"
 
-interface SidebarProps {
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   userRole: string
 }
 
-export function Sidebar({ userRole }: SidebarProps) {
+export function Sidebar({ userRole, className }: SidebarProps) {
   const pathname = usePathname()
 
   const clientNavItems = [
@@ -97,10 +97,10 @@ export function Sidebar({ userRole }: SidebarProps) {
                    staffNavItems
 
   return (
-    <div className="w-64 bg-white shadow-lg">
+    <div className={cn("w-64 bg-white shadow-lg", className)}>
       <div className="p-6">
         <h1 className="text-2xl font-bold text-gray-800">
-          CreditRepair CRM
+          Credit Mend
         </h1>
       </div>
       <nav className="mt-6">
