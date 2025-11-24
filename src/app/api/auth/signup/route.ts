@@ -5,11 +5,32 @@ import { sendWelcomeEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json();
+    const body = await request.json();
+    const { name, email, password } = body;
+
+    console.log('Signup attempt:', { email, name });
 
     if (!name || !email || !password) {
+      console.log('Missing fields:', { name: !!name, email: !!email, password: !!password });
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: 'Password must be at least 6 characters' },
         { status: 400 }
       );
     }
@@ -20,6 +41,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
+      console.log('User already exists:', email);
       return NextResponse.json(
         { error: 'User already exists' },
         { status: 400 }
@@ -39,6 +61,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log('User created:', user.id);
+
     // Create client profile
     await prisma.clientProfile.create({
       data: {
@@ -48,8 +72,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send welcome email
-    await sendWelcomeEmail(user.email, user.name || 'Valued Client');
+    console.log('Client profile created');
+
+    // Send welcome email (non-blocking)
+    sendWelcomeEmail(user.email, user.name || 'Valued Client').catch(err => {
+      console.error('Email error (non-blocking):', err);
+    });
 
     return NextResponse.json(
       { message: 'User created successfully' },
@@ -58,7 +86,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Signup error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }

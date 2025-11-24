@@ -17,6 +17,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log('Missing credentials');
           return null;
         }
 
@@ -24,6 +25,8 @@ export const authOptions: NextAuthOptions = {
           // Import bcrypt and prisma dynamically to avoid issues
           const bcrypt = await import('bcryptjs');
           const { prisma } = await import('@/lib/prisma');
+
+          console.log('Attempting login for:', credentials.email);
 
           // Find user by email
           const user = await prisma.user.findUnique({
@@ -34,7 +37,13 @@ export const authOptions: NextAuthOptions = {
             },
           });
 
-          if (!user || !user.password) {
+          if (!user) {
+            console.log('User not found:', credentials.email);
+            return null;
+          }
+
+          if (!user.password) {
+            console.log('User has no password:', credentials.email);
             return null;
           }
 
@@ -45,8 +54,11 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!isPasswordValid) {
+            console.log('Invalid password for:', credentials.email);
             return null;
           }
+
+          console.log('Login successful for:', credentials.email);
 
           // Update last login
           await prisma.user.update({
