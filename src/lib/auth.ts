@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 import type { User } from '@prisma/client';
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma) as any,
+  // Temporarily disabled adapter: PrismaAdapter(prisma) as any,
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -19,36 +19,37 @@ export const authOptions = {
           return null;
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
+        // Sample users for testing
+        const SAMPLE_USERS = {
+          'admin@creditrepair.com': {
+            password: 'Admin123!@#',
+            name: 'Admin User',
+            role: 'ADMIN',
           },
-          include: {
-            clientProfile: true,
-            staffProfile: true,
+          'agent@creditrepair.com': {
+            password: 'Agent123!@#',
+            name: 'Agent User',
+            role: 'AGENT',
           },
-        });
+          'client@creditrepair.com': {
+            password: 'Client123!@#',
+            name: 'Client User',
+            role: 'CLIENT',
+          },
+        };
 
-        if (!user || !user.password) {
-          return null;
-        }
+        const user =
+          SAMPLE_USERS[credentials.email as keyof typeof SAMPLE_USERS];
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isPasswordValid) {
+        if (!user || user.password !== credentials.password) {
           return null;
         }
 
         return {
-          id: user.id,
-          email: user.email,
+          id: credentials.email,
+          email: credentials.email,
           name: user.name,
           role: user.role,
-          clientProfile: user.clientProfile,
-          staffProfile: user.staffProfile,
         };
       },
     }),
