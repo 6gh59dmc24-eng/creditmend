@@ -27,9 +27,23 @@ export const sendVerificationEmail = async (email: string, name: string, userId:
     // Create verification token (simple base64 encoding of userId)
     // In production, use a proper token with expiration
     const verificationToken = Buffer.from(userId).toString('base64');
-    const verificationUrl = `${process.env.NEXTAUTH_URL || 'https://creditmend.org'}/api/auth/verify-email?token=${verificationToken}`;
+
+    // Get base URL - ensure we never use localhost
+    let baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://creditmend.org';
+
+    // Force production domain if localhost is detected
+    if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+      console.warn('⚠️  NEXTAUTH_URL contains localhost, using production domain instead');
+      baseUrl = 'https://creditmend.org';
+    }
+
+    // Remove trailing slash if present
+    baseUrl = baseUrl.replace(/\/$/, '');
+
+    const verificationUrl = `${baseUrl}/api/auth/verify-email?token=${verificationToken}`;
 
     console.log('Sending verification email to:', email);
+    console.log('Verification URL:', verificationUrl);
     console.log('From address: CreditMend <onboarding@creditmend.org>');
 
     const result = await resend.emails.send({
@@ -91,7 +105,20 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
   }
 
   try {
+    // Get base URL - ensure we never use localhost
+    let baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://creditmend.org';
+
+    // Force production domain if localhost is detected
+    if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+      console.warn('⚠️  NEXTAUTH_URL contains localhost, using production domain instead');
+      baseUrl = 'https://creditmend.org';
+    }
+
+    // Remove trailing slash if present
+    baseUrl = baseUrl.replace(/\/$/, '');
+
     console.log('Sending welcome email to:', email);
+    console.log('Dashboard URL:', `${baseUrl}/dashboard`);
 
     const result = await resend.emails.send({
       from: 'CreditMend <onboarding@creditmend.org>',
@@ -121,7 +148,7 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
               <p>Your account has been successfully activated. We are committed to helping you improve your credit score and achieve your financial goals.</p>
               <p>You can now access your dashboard to track your progress, upload documents, and view your reports.</p>
               <div style="text-align: center;">
-                <a href="${process.env.NEXTAUTH_URL || 'https://creditmend.org'}/dashboard" class="button">Go to Dashboard</a>
+                <a href="${baseUrl}/dashboard" class="button">Go to Dashboard</a>
               </div>
               <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
               <p>Best regards,<br>The CreditMend Team</p>
