@@ -1,32 +1,33 @@
-import { NextRequest, NextResponse } from "next/server"
-import bcrypt from "bcryptjs"
-import { prisma } from "@/lib/prisma"
+import { NextRequest, NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
+import { prisma } from '@/lib/prisma';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json()
+    const { name, email, password } = await request.json();
 
     if (!name || !email || !password) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: 'Missing required fields' },
         { status: 400 }
-      )
+      );
     }
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email }
-    })
+      where: { email },
+    });
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "User already exists" },
+        { error: 'User already exists' },
         { status: 400 }
-      )
+      );
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12)
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user
     const user = await prisma.user.create({
@@ -34,28 +35,31 @@ export async function POST(request: NextRequest) {
         name,
         email,
         password: hashedPassword,
-        role: "CLIENT" // Default role for new signups
-      }
-    })
+        role: 'CLIENT', // Default role for new signups
+      },
+    });
 
     // Create client profile
     await prisma.clientProfile.create({
       data: {
         userId: user.id,
         clientNumber: `CR${Date.now().toString().slice(-6)}`,
-        onboardingStatus: "PENDING"
-      }
-    })
+        onboardingStatus: 'PENDING',
+      },
+    });
+
+    // Send welcome email
+    await sendWelcomeEmail(user.email, user.name || 'Valued Client');
 
     return NextResponse.json(
-      { message: "User created successfully" },
+      { message: 'User created successfully' },
       { status: 201 }
-    )
+    );
   } catch (error) {
-    console.error("Signup error:", error)
+    console.error('Signup error:', error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Internal server error' },
       { status: 500 }
-    )
+    );
   }
 }
