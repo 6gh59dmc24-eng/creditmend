@@ -20,17 +20,17 @@ export default function LandingPage() {
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Link
-              href="#personal"
+              href="/personal-credit"
               className="text-sm font-medium text-gray-600 hover:text-blue-600">
               Personal Credit
             </Link>
             <Link
-              href="#business"
+              href="/business-credit"
               className="text-sm font-medium text-gray-600 hover:text-blue-600">
               Business Credit
             </Link>
             <Link
-              href="#financing"
+              href="/financing"
               className="text-sm font-medium text-gray-600 hover:text-blue-600">
               Financing
             </Link>
@@ -239,17 +239,17 @@ export default function LandingPage() {
               <h4 className="text-white font-bold mb-4">Services</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="#personal" className="hover:text-white">
+                  <Link href="/personal-credit" className="hover:text-white">
                     Personal Credit
                   </Link>
                 </li>
                 <li>
-                  <Link href="#business" className="hover:text-white">
+                  <Link href="/business-credit" className="hover:text-white">
                     Business Credit
                   </Link>
                 </li>
                 <li>
-                  <Link href="#financing" className="hover:text-white">
+                  <Link href="/financing" className="hover:text-white">
                     Financing
                   </Link>
                 </li>
@@ -259,17 +259,17 @@ export default function LandingPage() {
               <h4 className="text-white font-bold mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="#" className="hover:text-white">
+                  <Link href="/about" className="hover:text-white">
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white">
+                  <Link href="/success-stories" className="hover:text-white">
                     Success Stories
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white">
+                  <Link href="/contact" className="hover:text-white">
                     Contact
                   </Link>
                 </li>
@@ -279,12 +279,12 @@ export default function LandingPage() {
               <h4 className="text-white font-bold mb-4">Legal</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="#" className="hover:text-white">
+                  <Link href="/privacy" className="hover:text-white">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white">
+                  <Link href="/terms" className="hover:text-white">
                     Terms of Service
                   </Link>
                 </li>
