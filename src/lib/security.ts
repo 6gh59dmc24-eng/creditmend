@@ -472,8 +472,6 @@ export class SecurityUtils {
     globalThis.crypto.getRandomValues(array);
     return btoa(String.fromCharCode(...array));
   }
-    return crypto.randomBytes(16).toString('base64');
-  }
 
   // IP-based security
   static getClientIP(request: Request): string {
