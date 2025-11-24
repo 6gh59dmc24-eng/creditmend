@@ -1,44 +1,54 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { User, Mail, Phone, MapPin, Calendar, Briefcase } from "lucide-react"
+import { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { User, Calendar, Briefcase } from 'lucide-react';
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: "Test User",
-    email: "test@example.com",
-    phone: "+1 (555) 123-4567",
-    address: "123 Main St",
-    city: "New York",
-    state: "NY",
-    zipCode: "10001",
-    dateOfBirth: "1990-01-01",
-    employer: "ABC Company",
-    occupation: "Software Developer",
-    annualIncome: "75000",
-    housingStatus: "Rent",
-    maritalStatus: "Single",
+    name: 'Test User',
+    email: 'test@example.com',
+    phone: '+1 (555) 123-4567',
+    address: '123 Main St',
+    city: 'New York',
+    state: 'NY',
+    zipCode: '10001',
+    dateOfBirth: '1990-01-01',
+    employer: 'ABC Company',
+    occupation: 'Software Developer',
+    annualIncome: '75000',
+    housingStatus: 'Rent',
+    maritalStatus: 'Single',
     dependents: 0,
-    creditGoals: ["Improve credit score", "Remove negative items", "Build credit history"]
-  })
+    creditGoals: [
+      'Improve credit score',
+      'Remove negative items',
+      'Build credit history',
+    ],
+  });
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
-    }))
-  }
+      [field]: value,
+    }));
+  };
 
   const handleSave = () => {
     // TODO: Save to backend
-    console.log("Saving profile:", formData)
-    setIsEditing(false)
-  }
+    console.log('Saving profile:', formData);
+    setIsEditing(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -46,9 +56,8 @@ export default function ProfilePage() {
         <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
         <Button
           onClick={() => setIsEditing(!isEditing)}
-          variant={isEditing ? "outline" : "default"}
-        >
-          {isEditing ? "Cancel" : "Edit Profile"}
+          variant={isEditing ? 'outline' : 'default'}>
+          {isEditing ? 'Cancel' : 'Edit Profile'}
         </Button>
       </div>
 
@@ -71,7 +80,7 @@ export default function ProfilePage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  onChange={e => handleInputChange('name', e.target.value)}
                   disabled={!isEditing}
                 />
               </div>
@@ -81,7 +90,7 @@ export default function ProfilePage() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  onChange={e => handleInputChange('email', e.target.value)}
                   disabled={!isEditing}
                 />
               </div>
@@ -92,7 +101,7 @@ export default function ProfilePage() {
                 <Input
                   id="phone"
                   value={formData.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  onChange={e => handleInputChange('phone', e.target.value)}
                   disabled={!isEditing}
                 />
               </div>
@@ -102,7 +111,9 @@ export default function ProfilePage() {
                   id="dateOfBirth"
                   type="date"
                   value={formData.dateOfBirth}
-                  onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
+                  onChange={e =>
+                    handleInputChange('dateOfBirth', e.target.value)
+                  }
                   disabled={!isEditing}
                 />
               </div>
@@ -113,7 +124,7 @@ export default function ProfilePage() {
                 <Input
                   id="address"
                   value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  onChange={e => handleInputChange('address', e.target.value)}
                   disabled={!isEditing}
                 />
               </div>
@@ -123,7 +134,7 @@ export default function ProfilePage() {
                   <Input
                     id="city"
                     value={formData.city}
-                    onChange={(e) => handleInputChange("city", e.target.value)}
+                    onChange={e => handleInputChange('city', e.target.value)}
                     disabled={!isEditing}
                   />
                 </div>
@@ -132,7 +143,7 @@ export default function ProfilePage() {
                   <Input
                     id="state"
                     value={formData.state}
-                    onChange={(e) => handleInputChange("state", e.target.value)}
+                    onChange={e => handleInputChange('state', e.target.value)}
                     disabled={!isEditing}
                   />
                 </div>
@@ -141,7 +152,7 @@ export default function ProfilePage() {
                   <Input
                     id="zipCode"
                     value={formData.zipCode}
-                    onChange={(e) => handleInputChange("zipCode", e.target.value)}
+                    onChange={e => handleInputChange('zipCode', e.target.value)}
                     disabled={!isEditing}
                   />
                 </div>
@@ -157,9 +168,7 @@ export default function ProfilePage() {
               <Briefcase className="h-5 w-5" />
               Financial Information
             </CardTitle>
-            <CardDescription>
-              Employment and financial details
-            </CardDescription>
+            <CardDescription>Employment and financial details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -168,7 +177,7 @@ export default function ProfilePage() {
                 <Input
                   id="employer"
                   value={formData.employer}
-                  onChange={(e) => handleInputChange("employer", e.target.value)}
+                  onChange={e => handleInputChange('employer', e.target.value)}
                   disabled={!isEditing}
                 />
               </div>
@@ -177,7 +186,9 @@ export default function ProfilePage() {
                 <Input
                   id="occupation"
                   value={formData.occupation}
-                  onChange={(e) => handleInputChange("occupation", e.target.value)}
+                  onChange={e =>
+                    handleInputChange('occupation', e.target.value)
+                  }
                   disabled={!isEditing}
                 />
               </div>
@@ -189,7 +200,9 @@ export default function ProfilePage() {
                   id="annualIncome"
                   type="number"
                   value={formData.annualIncome}
-                  onChange={(e) => handleInputChange("annualIncome", e.target.value)}
+                  onChange={e =>
+                    handleInputChange('annualIncome', e.target.value)
+                  }
                   disabled={!isEditing}
                 />
               </div>
@@ -198,7 +211,9 @@ export default function ProfilePage() {
                 <Input
                   id="housingStatus"
                   value={formData.housingStatus}
-                  onChange={(e) => handleInputChange("housingStatus", e.target.value)}
+                  onChange={e =>
+                    handleInputChange('housingStatus', e.target.value)
+                  }
                   disabled={!isEditing}
                 />
               </div>
@@ -209,7 +224,9 @@ export default function ProfilePage() {
                 <Input
                   id="maritalStatus"
                   value={formData.maritalStatus}
-                  onChange={(e) => handleInputChange("maritalStatus", e.target.value)}
+                  onChange={e =>
+                    handleInputChange('maritalStatus', e.target.value)
+                  }
                   disabled={!isEditing}
                 />
               </div>
@@ -219,7 +236,9 @@ export default function ProfilePage() {
                   id="dependents"
                   type="number"
                   value={formData.dependents}
-                  onChange={(e) => handleInputChange("dependents", e.target.value)}
+                  onChange={e =>
+                    handleInputChange('dependents', e.target.value)
+                  }
                   disabled={!isEditing}
                 />
               </div>
@@ -264,5 +283,5 @@ export default function ProfilePage() {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -64,34 +64,40 @@ export function parseCreditReport(jsonContent: string): ImportedCreditReport {
       reportDate: data.reportDate || new Date().toISOString(),
       bureau: data.bureau as CreditBureau,
       score: data.score || 0,
-      accounts: (data.accounts || []).map((acc: any) => ({
-        creditorName: acc.creditorName,
-        accountNumber: acc.accountNumber,
+      accounts: (data.accounts || []).map((acc: Record<string, unknown>) => ({
+        creditorName: acc.creditorName as string,
+        accountNumber: acc.accountNumber as string,
         accountType: acc.accountType as AccountType,
         status: acc.status as AccountStatus,
         balance: Number(acc.balance) || 0,
         limit: acc.limit ? Number(acc.limit) : undefined,
         paymentStatus: acc.paymentStatus as PaymentStatus,
-        lastPaymentDate: acc.lastPaymentDate,
-        dateOpened: acc.dateOpened,
-        dateClosed: acc.dateClosed,
+        lastPaymentDate: acc.lastPaymentDate as string | undefined,
+        dateOpened: acc.dateOpened as string | undefined,
+        dateClosed: acc.dateClosed as string | undefined,
         latePayments: Number(acc.latePayments) || 0,
         daysLate: Number(acc.daysLate) || 0,
         isDisputed: Boolean(acc.isDisputed),
       })),
-      inquiries: (data.inquiries || []).map((inq: any) => ({
-        inquirerName: inq.inquirerName,
-        inquiryDate: inq.inquiryDate,
-        inquiryType: inq.inquiryType,
+      inquiries: (data.inquiries || []).map((inq: Record<string, unknown>) => ({
+        inquirerName: inq.inquirerName as string,
+        inquiryDate: inq.inquiryDate as string,
+        inquiryType: inq.inquiryType as 'HARD' | 'SOFT',
       })),
-      publicRecords: (data.publicRecords || []).map((rec: any) => ({
-        recordType: rec.recordType,
-        courtName: rec.courtName,
-        caseNumber: rec.caseNumber,
-        filingDate: rec.filingDate,
-        status: rec.status,
-        amount: Number(rec.amount) || 0,
-      })),
+      publicRecords: (data.publicRecords || []).map(
+        (rec: Record<string, unknown>) => ({
+          recordType: rec.recordType as
+            | 'BANKRUPTCY'
+            | 'JUDGMENT'
+            | 'LIEN'
+            | 'COLLECTION',
+          courtName: rec.courtName as string | undefined,
+          caseNumber: rec.caseNumber as string | undefined,
+          filingDate: rec.filingDate as string | undefined,
+          status: rec.status as string | undefined,
+          amount: Number(rec.amount) || 0,
+        })
+      ),
     };
   } catch (error) {
     throw new Error(

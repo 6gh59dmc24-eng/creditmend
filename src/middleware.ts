@@ -1,12 +1,10 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from 'next/server'
+import { NextRequest } from 'next/server';
+import { middleware as securityMiddleware } from '@/lib/security-middleware';
 
-export function middleware() {
-  // For now, just allow all routes - we'll add auth protection later
-  // You can add authentication logic here when needed
-  return NextResponse.next()
+export function middleware(request: NextRequest) {
+  return securityMiddleware(request);
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"]
-}
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+};

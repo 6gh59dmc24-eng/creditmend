@@ -1,18 +1,20 @@
 'use client';
 
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Bell, LogOut, User } from 'lucide-react';
 
 import { MobileSidebar } from '@/components/dashboard/mobile-sidebar';
 
 interface HeaderProps {
-  user: any;
+  user: {
+    name?: string | null;
+    email?: string | null;
+    role?: string;
+  };
 }
 
 export function Header({ user }: HeaderProps) {
-  const { data: session } = useSession();
-
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="px-4 md:px-6 py-4 flex items-center justify-between">

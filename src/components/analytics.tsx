@@ -1,40 +1,41 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export function Analytics() {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_GA_ID) {
       // Google Analytics 4
-      const gtag = function(...args: unknown[]) {
-        const dataLayer = (window as any).dataLayer || []
-        dataLayer.push(args)
-      }
-      
+      const gtag = function (...args: unknown[]) {
+        const dataLayer =
+          (window as unknown as { dataLayer: unknown[] }).dataLayer || [];
+        dataLayer.push(args);
+      };
+
       // Initialize GA4
-      gtag('js', new Date())
+      gtag('js', new Date());
       gtag('config', process.env.NEXT_PUBLIC_GA_ID, {
         page_path: pathname + searchParams.toString(),
-      })
-      
+      });
+
       // Track page views
       gtag('event', 'page_view', {
         page_path: pathname + searchParams.toString(),
-      })
+      });
     }
-  }, [pathname, searchParams])
+  }, [pathname, searchParams]);
 
-  return null
+  return null;
 }
 
 // Google Analytics Script Component
 export function GoogleAnalyticsScript() {
   if (!process.env.NEXT_PUBLIC_GA_ID) {
-    return null
+    return null;
   }
 
   return (
@@ -54,7 +55,7 @@ export function GoogleAnalyticsScript() {
         }}
       />
     </>
-  )
+  );
 }
 
 // Performance Monitoring
@@ -62,29 +63,36 @@ export function PerformanceMonitor() {
   useEffect(() => {
     if (typeof window !== 'undefined' && 'performance' in window) {
       // Monitor Core Web Vitals
-      const observer = new PerformanceObserver((list) => {
+      const observer = new PerformanceObserver(list => {
         for (const entry of list.getEntries()) {
           if (entry.entryType === 'largest-contentful-paint') {
-            console.log('LCP:', entry.startTime)
+            console.log('LCP:', entry.startTime);
           }
           if (entry.entryType === 'first-input') {
-            const fidEntry = entry as any
+            const fidEntry = entry as PerformanceEventTiming
             console.log('FID:', fidEntry.processingStart - fidEntry.startTime)
           }
           if (entry.entryType === 'layout-shift') {
-            const clsEntry = entry as any
+            const clsEntry = entry as unknown as { value: number; hadRecentInput: boolean }
             if (!clsEntry.hadRecentInput) {
               console.log('CLS:', clsEntry.value)
             }
+          if (entry.entryType === 'layout-shift') {
+            const clsEntry = entry as any;
+            if (!clsEntry.hadRecentInput) {
+              console.log('CLS:', clsEntry.value);
+            }
           }
         }
-      })
-      
-      observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] })
-      
-      return () => observer.disconnect()
-    }
-  }, [])
+      });
 
-  return null
+      observer.observe({
+        entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'],
+      });
+
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  return null;
 }
