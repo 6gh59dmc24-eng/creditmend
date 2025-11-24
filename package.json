@@ -17,7 +17,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky install",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "user:create": "node scripts/create-test-user.js",
+    "user:list": "node scripts/list-users.js",
+    "user:reset": "node scripts/reset-user-password.js",
+    "db:check": "node scripts/check-tables.js"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
