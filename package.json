@@ -24,7 +24,8 @@
     "user:reset": "node scripts/reset-user-password.js",
     "user:delete-all": "node scripts/delete-all-users.js",
     "db:check": "node scripts/check-tables.js",
-    "db:reset": "node scripts/delete-all-data.js"
+    "db:reset": "node scripts/delete-all-data.js",
+    "test:auth": "node scripts/test-auth-flow.js"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
