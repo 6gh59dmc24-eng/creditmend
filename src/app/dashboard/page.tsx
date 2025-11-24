@@ -1,230 +1,365 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, FileText, TrendingUp, Calendar } from "lucide-react"
+import { StatsGrid } from '@/components/dashboard/stats-grid';
+import { CreditScoreGauge } from '@/components/dashboard/credit-score-gauge';
+import { AccountList } from '@/components/dashboard/account-list';
+import { Button } from '@/components/ui/button';
+import { Bell, ChevronDown } from 'lucide-react';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-export default function DashboardPage() {
-  const isClient = true
-  const isStaff = false
+export default async function DashboardPage() {
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+
+  // Mock data - In a real app, this would come from your database
+  const stats = {
+    paymentHistory: 100,
+    creditCardUse: 2,
+    totalAccounts: 28,
+    creditAge: 7,
+  };
+
+  const accounts = [
+    {
+      id: '1',
+      dateOpen: '22 Jan, 2010',
+      name: 'BRINKS HOME',
+      accountNumber: '302852603380xxxx',
+      balance: '$0',
+      creditLimit: 'None',
+      type: 'Open',
+      status: 'Open',
+    },
+    {
+      id: '2',
+      dateOpen: '15 Mar, 2015',
+      name: 'CHASE BANK',
+      accountNumber: '440066112233xxxx',
+      balance: '$4,250',
+      creditLimit: '$15,000',
+      type: 'Revolving',
+      status: 'Current',
+    },
+    {
+      id: '3',
+      dateOpen: '01 Nov, 2018',
+      name: 'VERIZON WIRELESS',
+      accountNumber: '9876543210xxxx',
+      balance: '$1,200',
+      creditLimit: 'None',
+      type: 'Collection',
+      status: 'Derogatory',
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          {isClient ? "My Dashboard" : "Dashboard"}
-        </h1>
-        <p className="text-gray-600">
-          {isClient ? "Track your credit repair progress" : "Manage your credit repair business"}
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50/50">
+      {/* Top Navigation Bar */}
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-20">
+        <div className="px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-2 text-green-700 font-bold text-xl">
+              <div className="w-6 h-6 bg-green-600 rounded-tr-lg rounded-bl-lg"></div>
+              DisputeFox
+            </div>
+            <nav className="hidden md:flex items-center gap-1">
+              <Button
+                variant="ghost"
+                className="bg-black text-white hover:bg-gray-800 hover:text-white rounded-full px-6 h-9 text-sm font-medium">
+                Dashboard
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-gray-500 hover:text-gray-900 rounded-full px-4 h-9 text-sm font-medium">
+                Disputed Items <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-gray-500 hover:text-gray-900 rounded-full px-4 h-9 text-sm font-medium">
+                Dispute Letters <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-gray-500 hover:text-gray-900 rounded-full px-4 h-9 text-sm font-medium">
+                Action Plan <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-gray-500 hover:text-gray-900 rounded-full px-4 h-9 text-sm font-medium">
+                Credit Report <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-gray-500 hover:text-gray-900 rounded-full px-4 h-9 text-sm font-medium">
+                Inquiry Helper <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-gray-500 hover:text-gray-900 rounded-full px-4 h-9 text-sm font-medium">
+                Documents <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+            </nav>
+          </div>
 
-      {isClient && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Active Cases
-              </CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">3</div>
-              <p className="text-xs text-muted-foreground">
-                2 disputes in progress
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Credit Score
-              </CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">642</div>
-              <p className="text-xs text-muted-foreground">
-                +23 points this month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Items Removed
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">7</div>
-              <p className="text-xs text-muted-foreground">
-                5 this month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Next Update
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">5</div>
-              <p className="text-xs text-muted-foreground">
-                days until bureau response
-              </p>
-            </CardContent>
-          </Card>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5 text-gray-500" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full"></span>
+            </Button>
+            <div className="h-8 w-8 bg-gray-200 rounded-full overflow-hidden">
+              {/* User Avatar Placeholder */}
+              <img
+                src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`}
+                alt="User"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
         </div>
-      )}
+      </header>
 
-      {isStaff && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Clients
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">248</div>
-              <p className="text-xs text-muted-foreground">
-                +12% from last month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Active Cases
-              </CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">142</div>
-              <p className="text-xs text-muted-foreground">
-                89 pending response
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Success Rate
-              </CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">87%</div>
-              <p className="text-xs text-muted-foreground">
-                +3% from last quarter
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Monthly Revenue
-              </CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">$24,800</div>
-              <p className="text-xs text-muted-foreground">
-                +18% from last month
-              </p>
-            </CardContent>
-          </Card>
+      <main className="p-8 max-w-[1600px] mx-auto space-y-8">
+        {/* Welcome Section */}
+        <div className="flex flex-col items-center justify-center text-center mb-12">
+          <h1 className="text-4xl font-medium text-gray-900 mb-2">
+            Hello, {user?.name?.split(' ')[0] || 'Alex'}
+          </h1>
+          <div className="flex items-center gap-2 text-3xl font-light text-gray-600">
+            Here is your credit rate <span className="text-3xl">🙂</span>
+          </div>
         </div>
-      )}
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              {isClient ? "Your recent credit repair activity" : "Recent system activity"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">
-                    {isClient ? "Dispute sent to Experian" : "New client onboarded"}
-                  </p>
-                  <p className="text-xs text-gray-500">2 hours ago</p>
+        {/* Main Dashboard Grid */}
+        <div className="grid grid-cols-12 gap-8">
+          {/* Left Column: Score & Stats */}
+          <div className="col-span-12 lg:col-span-4 space-y-8">
+            {/* Bureau Tabs */}
+            <div className="bg-white rounded-full p-1 flex shadow-sm border border-gray-100 w-fit mx-auto lg:w-full">
+              <button className="flex-1 px-6 py-2 bg-white shadow-sm rounded-full text-sm font-medium text-gray-900 border border-gray-100">
+                TransUnion
+              </button>
+              <button className="flex-1 px-6 py-2 text-sm font-medium text-gray-500 hover:text-gray-900">
+                Equifax
+              </button>
+              <button className="flex-1 px-6 py-2 text-sm font-medium text-gray-500 hover:text-gray-900">
+                Experian
+              </button>
+            </div>
+
+            {/* Gauge Chart */}
+            <div className="flex justify-center py-8">
+              <CreditScoreGauge score={803} />
+            </div>
+
+            {/* Update Button */}
+            <div className="text-center">
+              <Button className="bg-black text-white hover:bg-gray-800 rounded-full px-8 h-12 text-sm font-medium w-full max-w-xs mx-auto shadow-lg shadow-gray-200/50">
+                Update your credit score
+              </Button>
+            </div>
+
+            {/* Stats Grid */}
+            <StatsGrid stats={stats} />
+          </div>
+
+          {/* Right Column: Action Items & Accounts */}
+          <div className="col-span-12 lg:col-span-8 space-y-8">
+            {/* Status Timeline */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[
+                {
+                  day: 'Day 1',
+                  title: 'TransUnion credit',
+                  subtitle: 'monitoring activated',
+                  status: 'completed',
+                },
+                {
+                  day: 'Day 1-3',
+                  title: 'Review your credit report',
+                  subtitle: 'with our credit experts',
+                  status: 'completed',
+                },
+                {
+                  day: 'Day 5',
+                  title: 'File reviewed by the TCP team',
+                  subtitle: 'and dispute strategy developed',
+                  status: 'pending',
+                },
+                {
+                  day: 'Day 7',
+                  title: 'File ready for dispute',
+                  subtitle: 'and sent to bureaus',
+                  status: 'pending',
+                },
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col gap-3">
+                  <span className="text-xs font-medium text-gray-500">
+                    {item.day}
+                  </span>
+                  <div className="flex items-start gap-3 bg-white/50 p-3 rounded-xl border border-gray-100/50 h-full">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${item.status === 'completed' ? 'bg-green-100 text-green-600' : 'bg-white border border-gray-200'}`}>
+                      {item.status === 'completed' && (
+                        <div className="w-2.5 h-1.5 border-l-2 border-b-2 border-current -rotate-45 mb-0.5" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-gray-900 leading-tight mb-1">
+                        {item.title}
+                      </p>
+                      <p className="text-[10px] text-gray-500 leading-tight">
+                        {item.subtitle}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">
-                    {isClient ? "Credit report updated" : "Case #1234 completed"}
-                  </p>
-                  <p className="text-xs text-gray-500">1 day ago</p>
+              ))}
+            </div>
+
+            {/* Tabs: Negative Accounts / Business / Inquiries */}
+            <div className="flex items-center gap-8 border-b border-gray-100 pb-1">
+              <button className="flex items-center gap-2 pb-3 border-b-2 border-red-400 px-2">
+                <span className="w-5 h-5 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-xs font-bold">
+                  3
+                </span>
+                <span className="text-lg font-medium text-gray-900">
+                  Negative Accounts
+                </span>
+              </button>
+              <button className="flex items-center gap-2 pb-3 px-2 opacity-50 hover:opacity-100 transition-opacity">
+                <span className="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">
+                  13
+                </span>
+                <span className="text-lg font-medium text-gray-900">
+                  Business Assistantce
+                </span>
+              </button>
+              <button className="flex items-center gap-2 pb-3 px-2 opacity-50 hover:opacity-100 transition-opacity">
+                <span className="w-5 h-5 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xs font-bold">
+                  0
+                </span>
+                <span className="text-lg font-medium text-gray-900">
+                  Inquiries
+                </span>
+              </button>
+            </div>
+
+            {/* Account Details & Overview */}
+            <div className="space-y-6">
+              <AccountList accounts={accounts} />
+
+              {/* Expanded Account View (Simulated for the first item) */}
+              <div className="grid grid-cols-12 gap-6 bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+                {/* Overview Column */}
+                <div className="col-span-12 md:col-span-4 space-y-6 border-r border-gray-100 pr-6">
+                  <h3 className="font-medium text-gray-900">Overview</h3>
+                  <div className="space-y-2">
+                    <p className="text-xs text-gray-500">
+                      You've paid off 100% of the original amount.
+                    </p>
+                    <div className="flex gap-0.5 h-8 items-end">
+                      {Array.from({ length: 40 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-1 bg-green-500 rounded-t-sm"
+                          style={{ height: `${Math.random() * 100}%` }}></div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Balance</p>
+                      <p className="text-2xl font-bold text-gray-900">$ 0</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500 mb-1">
+                        Highest Balance
+                      </p>
+                      <p className="text-xl font-bold text-gray-900">$ 49</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">
-                    {isClient ? "Document uploaded" : "Payment received"}
+
+                {/* Payment History Column */}
+                <div className="col-span-12 md:col-span-5 space-y-6 border-r border-gray-100 pr-6 pl-2">
+                  <h3 className="font-medium text-gray-900">Payment History</h3>
+                  <p className="text-xs text-gray-500">
+                    You have made 95% of payments for this account on time.
                   </p>
-                  <p className="text-xs text-gray-500">3 days ago</p>
+
+                  {/* History Grid */}
+                  <div className="grid grid-cols-13 gap-1 text-[10px] text-gray-400 text-center">
+                    <div></div>
+                    {[
+                      'J',
+                      'F',
+                      'M',
+                      'A',
+                      'M',
+                      'J',
+                      'J',
+                      'A',
+                      'S',
+                      'O',
+                      'N',
+                      'D',
+                    ].map(m => (
+                      <div key={m}>{m}</div>
+                    ))}
+
+                    <div className="text-left">2023</div>
+                    {Array.from({ length: 12 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] ${i === 4 ? 'bg-red-100 text-red-500' : 'bg-green-600 text-white'}`}>
+                        {i === 4 ? '✕' : '✓'}
+                      </div>
+                    ))}
+
+                    <div className="text-left">2022</div>
+                    {Array.from({ length: 12 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-[8px]">
+                        ✓
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Details Column */}
+                <div className="col-span-12 md:col-span-3 space-y-4 pl-2">
+                  <h3 className="font-medium text-gray-900">Account Details</h3>
+                  <div className="space-y-3 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Account status</span>
+                      <span className="font-medium text-gray-900">Open</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Type</span>
+                      <span className="font-medium text-gray-900">Open</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Responsibility</span>
+                      <span className="font-medium text-gray-900">
+                        Individual
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Remarks</span>
+                      <span className="font-medium text-gray-900 text-right max-w-[100px]">
+                        Dispute resolved reported by grantor
+                      </span>
+                    </div>
+                  </div>
+                  <Button className="w-full bg-black text-white hover:bg-gray-800 rounded-full h-10 text-xs font-medium mt-4">
+                    Dispute
+                  </Button>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Tasks</CardTitle>
-            <CardDescription>
-              {isClient ? "Items requiring your attention" : "Tasks and deadlines"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">
-                    {isClient ? "Review dispute letter" : "Follow up with TransUnion"}
-                  </p>
-                  <p className="text-xs text-gray-500">Due today</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">
-                    {isClient ? "Upload ID verification" : "Client meeting scheduled"}
-                  </p>
-                  <p className="text-xs text-gray-500">Tomorrow</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">
-                    {isClient ? "Monthly payment due" : "Report generation"}
-                  </p>
-                  <p className="text-xs text-gray-500">In 3 days</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </main>
     </div>
-  )
+  );
 }
