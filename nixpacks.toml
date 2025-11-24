@@ -3,6 +3,7 @@ nixPkgs = ["nodejs", "openssl"]
 
 [phases.build]
 cmds = ["npm ci", "npx prisma generate", "npm run build"]
+cacheDirectories = [".next/cache", "node_modules/.cache"]
 
 [start]
 cmd = "npm run start"
