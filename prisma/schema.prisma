@@ -36,6 +36,8 @@ model User {
   sessions          Session[]
   authenticators    Authenticator[]
   clientProfile     ClientProfile?
+  businessProfile   BusinessProfile?
+  wealthProfile     WealthProfile?
   staffProfile      StaffProfile?
   cases             Case[]
   notifications     Notification[]
@@ -169,7 +171,9 @@ enum UserRole {
   ADMIN
   MANAGER
   AGENT
-  CLIENT
+  CLIENT              // Personal credit repair client
+  BUSINESS_CLIENT     // Business credit building client
+  WEALTH_CLIENT       // Wealth management client
 }
 
 // Client Profile
@@ -207,6 +211,67 @@ enum OnboardingStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+// Business Profile - For business credit building clients
+model BusinessProfile {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  businessNumber        String    @unique
+  businessName          String
+  businessStructure     String?   // LLC, Corporation, Sole Proprietor, etc.
+  ein                   String?   // Employer Identification Number
+  industry              String?
+  businessAddress       String?
+  businessCity          String?
+  businessState         String?
+  businessZip           String?
+  yearEstablished       Int?
+  numberOfEmployees     Int?
+  annualRevenue         Decimal?
+  currentCreditTier     Int?      // 1-5 tier system
+  creditGoals           String[]  // Array of business credit goals
+  fundingNeeds          Decimal?  // Amount of funding needed
+  fundingPurpose        String?   // What funding will be used for
+  onboardingStatus      OnboardingStatus @default(PENDING)
+  onboardingCompleted   DateTime?
+  consentSigned         Boolean   @default(false)
+  consentSignedAt       DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("business_profiles")
+}
+
+// Wealth Profile - For wealth management clients
+model WealthProfile {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  clientNumber          String    @unique
+  netWorth              Decimal?
+  liquidAssets          Decimal?
+  investmentExperience  String?   // Beginner, Intermediate, Advanced, Expert
+  riskTolerance         String?   // Conservative, Moderate, Aggressive
+  investmentGoals       String[]  // Array of investment goals
+  timeHorizon           String?   // Short-term, Medium-term, Long-term
+  currentInvestments    Json?     // Portfolio breakdown
+  retirementAge         Int?
+  hasEstatePlan         Boolean   @default(false)
+  hasTrustAccount       Boolean   @default(false)
+  taxBracket            String?
+  financialAdvisor      String?   // Name of current advisor if any
+  onboardingStatus      OnboardingStatus @default(PENDING)
+  onboardingCompleted   DateTime?
+  consentSigned         Boolean   @default(false)
+  consentSignedAt       DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wealth_profiles")
 }
 
 // Staff Profile
