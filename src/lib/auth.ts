@@ -1,7 +1,12 @@
-import NextAuth from 'next-auth';
+import NextAuth, {
+  type NextAuthOptions,
+  type Session,
+  type User,
+} from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   // Temporarily disabled adapter: PrismaAdapter(prisma) as any,
   providers: [
     CredentialsProvider({
@@ -54,20 +59,43 @@ export const authOptions = {
     strategy: 'jwt' as const,
   },
   callbacks: {
-    async jwt({ token, user }: { token: any; user: any }) {
+    async jwt({
+      token,
+      user,
+    }: {
+      token: JWT;
+      user?: User | null;
+    }): Promise<JWT> {
       if (user) {
         token.role = user.role;
         token.clientProfile = user.clientProfile;
         token.staffProfile = user.staffProfile;
       }
+
+      if (!token.role) {
+        token.role = 'CLIENT';
+      }
+
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
-      if (token) {
-        session.user.id = token.sub!;
-        session.user.role = token.role as string;
-        session.user.clientProfile = token.clientProfile as any;
-        session.user.staffProfile = token.staffProfile as any;
+    async session({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT;
+    }): Promise<Session> {
+      if (session.user) {
+        if (token.sub) {
+          session.user.id = token.sub;
+        }
+        session.user.role = token.role;
+        if (token.clientProfile !== undefined) {
+          session.user.clientProfile = token.clientProfile;
+        }
+        if (token.staffProfile !== undefined) {
+          session.user.staffProfile = token.staffProfile;
+        }
       }
       return session;
     },

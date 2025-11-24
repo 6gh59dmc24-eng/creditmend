@@ -4,6 +4,7 @@ import { parseCreditReport } from '@/lib/credit-report-parser';
 import { DisputeAnalyzer } from '@/lib/dispute-analyzer';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import type { Prisma } from '@prisma/client';
 
 export async function POST(req: Request) {
   try {
@@ -21,6 +22,9 @@ export async function POST(req: Request) {
 
     // 1. Parse the report
     const parsedReport = parseCreditReport(content);
+    const serializedReport = JSON.parse(
+      JSON.stringify(parsedReport)
+    ) as Prisma.JsonObject;
 
     // 2. Find or create the client (mock logic if clientId not provided)
     // For now, we assume a valid clientId is passed, or we use the session user id if available
@@ -37,7 +41,7 @@ export async function POST(req: Request) {
         bureau: parsedReport.bureau,
         reportDate: new Date(parsedReport.reportDate),
         score: parsedReport.score,
-        reportData: JSON.parse(JSON.stringify(parsedReport)) as any, // Storing full JSON for backup
+        reportData: serializedReport,
         accounts: {
           create: parsedReport.accounts.map(acc => ({
             creditorName: acc.creditorName,

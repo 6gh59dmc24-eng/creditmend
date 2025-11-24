@@ -32,8 +32,9 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const category = formData.get('category') as string;
-    const description = formData.get('description') as string;
-    const caseId = formData.get('caseId') as string;
+    const description =
+      (formData.get('description') as string | null)?.trim() || '';
+    const caseId = (formData.get('caseId') as string | null)?.trim() || '';
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -61,11 +62,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Ensure upload directory exists
-    await mkdir(UPLOAD_DIR, { recursive: true });
+    const uploadDirectory = caseId ? join(UPLOAD_DIR, caseId) : UPLOAD_DIR;
+    await mkdir(uploadDirectory, { recursive: true });
 
     // Generate unique filename
     const uniqueFilename = generateUniqueFilename(file.name);
-    const filePath = join(UPLOAD_DIR, uniqueFilename);
+    const filePath = join(uploadDirectory, uniqueFilename);
 
     // Save file to disk
     const buffer = await file.arrayBuffer();
@@ -83,7 +85,9 @@ export async function POST(request: NextRequest) {
         originalName: file.name,
         size: file.size,
         type: file.type,
-        category: category,
+        category,
+        description: description || undefined,
+        caseId: caseId || undefined,
         uploadDate: new Date().toISOString(),
       },
     });

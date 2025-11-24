@@ -10,7 +10,7 @@ import {
   CheckCircle, 
   AlertCircle, 
   X,
-  Image,
+  Image as ImageIcon,
   FileText as FileIcon
 } from "lucide-react"
 
@@ -31,7 +31,7 @@ export default function DocumentUploadPage() {
   const [uploadProgress, setUploadProgress] = useState<FileUpload[]>([])
 
   const getFileIcon = (type: string) => {
-    if (type.startsWith('image/')) return <Image className="h-8 w-8 text-green-500" />
+    if (type.startsWith('image/')) return <ImageIcon className="h-8 w-8 text-green-500" />
     if (type.includes('pdf')) return <FileText className="h-8 w-8 text-red-500" />
     return <FileIcon className="h-8 w-8 text-blue-500" />
   }

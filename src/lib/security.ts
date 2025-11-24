@@ -117,11 +117,14 @@ export class SecurityUtils {
       .join('');
   }
 
-  static async validateCSRFToken(token: string, sessionToken: string): Promise<boolean> {
+  static async validateCSRFToken(
+    token: string,
+    sessionToken: string
+  ): Promise<boolean> {
     // In production, validate against stored session token
     const msgBuffer = new TextEncoder().encode('csrf-protection');
     const keyBuffer = new TextEncoder().encode(sessionToken);
-    
+
     const key = await globalThis.crypto.subtle.importKey(
       'raw',
       keyBuffer,
@@ -129,8 +132,12 @@ export class SecurityUtils {
       false,
       ['sign']
     );
-    
-    const signature = await globalThis.crypto.subtle.sign('HMAC', key, msgBuffer);
+
+    const signature = await globalThis.crypto.subtle.sign(
+      'HMAC',
+      key,
+      msgBuffer
+    );
     const expectedToken = Array.from(new Uint8Array(signature))
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
@@ -146,40 +153,6 @@ export class SecurityUtils {
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
   }
-    return crypto.randomBytes(32).toString('hex');
-  }
-
-  static async validateCSRFToken(
-    token: string,
-    sessionToken: string
-  ): Promise<boolean> {
-    // In production, validate against stored session token
-    const msgBuffer = new TextEncoder().encode('csrf-protection');
-    const keyBuffer = new TextEncoder().encode(sessionToken);
-
-    const key = await crypto.subtle.importKey(
-      'raw',
-      keyBuffer,
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['sign']
-    );
-
-    const signature = await crypto.subtle.sign('HMAC', key, msgBuffer);
-    const expectedToken = Buffer.from(signature).toString('hex');
-
-    return token === expectedToken;
-  }
-
-  // Secure random token generation
-  static generateSecureToken(length: number = 32): string {
-    if (typeof crypto.randomBytes !== 'function') {
-      return Array.from(crypto.getRandomValues(new Uint8Array(length)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-    }
-    return crypto.randomBytes(length).toString('hex');
-  }
 
   // Hash password securely
   static async hashPassword(
@@ -187,10 +160,12 @@ export class SecurityUtils {
     salt?: string
   ): Promise<{ hash: string; salt: string }> {
     const enc = new TextEncoder();
-    const generatedSalt = salt || Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-      
+    const generatedSalt =
+      salt ||
+      Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
     const keyMaterial = await globalThis.crypto.subtle.importKey(
       'raw',
       enc.encode(password),
@@ -198,20 +173,20 @@ export class SecurityUtils {
       false,
       ['deriveBits', 'deriveKey']
     );
-    
+
     const key = await globalThis.crypto.subtle.deriveKey(
       {
         name: 'PBKDF2',
         salt: enc.encode(generatedSalt),
         iterations: 100000,
-        hash: 'SHA-512'
+        hash: 'SHA-512',
       },
       keyMaterial,
       { name: 'HMAC', hash: 'SHA-512', length: 512 },
       true,
       ['sign', 'verify']
     );
-    
+
     const exportedKey = await globalThis.crypto.subtle.exportKey('raw', key);
     const hash = Array.from(new Uint8Array(exportedKey))
       .map(b => b.toString(16).padStart(2, '0'))
@@ -245,25 +220,32 @@ export class SecurityUtils {
       keyMaterial,
       enc.encode(text)
     );
-    
-    const ivHex = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
-    const encryptedHex = Array.from(new Uint8Array(encrypted)).map(b => b.toString(16).padStart(2, '0')).join('');
-    
+
+    const ivHex = Array.from(iv)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    const encryptedHex = Array.from(new Uint8Array(encrypted))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
     return ivHex + ':' + encryptedHex;
   }
 
   static async decrypt(encryptedText: string, key: string): Promise<string> {
     const parts = encryptedText.split(':');
-    
+
     // Convert hex strings back to Uint8Arrays
     const ivMatch = parts[0].match(/.{1,2}/g)?.map(byte => parseInt(byte, 16));
-    const dataMatch = parts[1].match(/.{1,2}/g)?.map(byte => parseInt(byte, 16));
-    
-    if (!ivMatch || !dataMatch) throw new Error('Invalid encrypted data format');
-    
+    const dataMatch = parts[1]
+      .match(/.{1,2}/g)
+      ?.map(byte => parseInt(byte, 16));
+
+    if (!ivMatch || !dataMatch)
+      throw new Error('Invalid encrypted data format');
+
     const iv = new Uint8Array(ivMatch);
     const data = new Uint8Array(dataMatch);
-    
+
     const enc = new TextEncoder();
     const keyMaterial = await globalThis.crypto.subtle.importKey(
       'raw',
@@ -272,66 +254,14 @@ export class SecurityUtils {
       false,
       ['decrypt']
     );
-    
+
     const decrypted = await globalThis.crypto.subtle.decrypt(
       { name: 'AES-CBC', iv },
       keyMaterial,
       data
     );
-    
+
     return new TextDecoder().decode(decrypted);
-  }
-
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
-    cipher.setAutoPadding(true);
-
-    let encrypted = cipher.update(text, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-
-    return iv.toString('hex') + ':' + encrypted;
-  }
-
-  static async decrypt(encryptedText: string, key: string): Promise<string> {
-    if (typeof window !== 'undefined' || !crypto.createDecipheriv) {
-      // Use Web Crypto API for Edge/Browser
-      const parts = encryptedText.split(':');
-      const iv = Buffer.from(parts[0], 'hex');
-      const data = Buffer.from(parts[1], 'hex');
-
-      const enc = new TextEncoder();
-      const keyMaterial = await crypto.subtle.importKey(
-        'raw',
-        enc.encode(key),
-        'AES-CBC',
-        false,
-        ['decrypt']
-      );
-
-      const decrypted = await crypto.subtle.decrypt(
-        { name: 'AES-CBC', iv },
-        keyMaterial,
-        data
-      );
-
-      return new TextDecoder().decode(decrypted);
-    }
-
-    const textParts = encryptedText.split(':');
-    const iv = Buffer.from(textParts[0], 'hex');
-    const encrypted = textParts[1];
-
-    const decipher = crypto.createDecipheriv(
-      'aes-256-cbc',
-      Buffer.from(key),
-      iv
-    );
-    decipher.setAutoPadding(true);
-
-    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-
-    return decrypted;
   }
 
   // SQL Injection protection
