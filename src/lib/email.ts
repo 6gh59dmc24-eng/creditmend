@@ -12,7 +12,7 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
 
   try {
     await resend.emails.send({
-      from: 'CreditMend <onboarding@resend.dev>', // Using Resend's testing domain initially, or 'onboarding@creditmend.org' if verified
+      from: 'CreditMend <onboarding@creditmend.org>',
       to: email,
       subject: 'Welcome to CreditMend - Your Account is Active',
       html: `
