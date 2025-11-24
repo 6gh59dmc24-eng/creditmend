@@ -21,7 +21,9 @@
     "user:create": "node scripts/create-test-user.js",
     "user:list": "node scripts/list-users.js",
     "user:reset": "node scripts/reset-user-password.js",
-    "db:check": "node scripts/check-tables.js"
+    "user:delete-all": "node scripts/delete-all-users.js",
+    "db:check": "node scripts/check-tables.js",
+    "db:reset": "node scripts/delete-all-data.js"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
