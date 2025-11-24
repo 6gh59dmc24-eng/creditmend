@@ -1,0 +1,742 @@
+// Credit Repair CRM Database Schema
+// Compliance: CROA, FCRA, GLBA, and state regulations
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management & Authentication
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  emailVerified     DateTime?
+  name              String?
+  role              UserRole @default(CLIENT)
+  password          String?
+  image             String?
+  phone             String?
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?
+  ssn               String?   // Encrypted SSN for identity verification
+  dateOfBirth       DateTime?
+  isActive          Boolean  @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  accounts          Account[]
+  sessions          Session[]
+  clientProfile     ClientProfile?
+  staffProfile      StaffProfile?
+  cases             Case[]
+  notifications     Notification[]
+  payments          Payment[]
+  auditLogs         AuditLog[]
+  sentCommunications Communication[]  @relation("CommunicationSender")
+  receivedCommunications Communication[] @relation("CommunicationRecipient")
+  clientNotes       Note[]             @relation("NoteClient")
+  authoredNotes     Note[]             @relation("NoteAuthor")
+  clientDocuments   Document[]       @relation("DocumentClient")
+  uploadedDocuments  Document[]       @relation("DocumentUploader")
+  assignedTasks     Task[]           @relation("TaskAssignee")
+  createdTasks      Task[]           @relation("TaskCreator")
+  assignedCases     Case[]           @relation("AssignedAgent")
+  createdCases      Case[]           @relation("CreatedBy")
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// User Roles
+enum UserRole {
+  ADMIN
+  MANAGER
+  AGENT
+  CLIENT
+}
+
+// Client Profile
+model ClientProfile {
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  clientNumber        String    @unique
+  emergencyContact    String?
+  emergencyPhone      String?
+  employer            String?
+  occupation          String?
+  annualIncome        Decimal?
+  housingStatus       String?
+  maritalStatus       String?
+  dependents          Int?
+  creditGoals         String[]  // Array of credit improvement goals
+  referredBy          String?
+  onboardingStatus    OnboardingStatus @default(PENDING)
+  onboardingCompleted DateTime?
+  consentSigned       Boolean   @default(false)
+  consentSignedAt     DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  creditReports       CreditReport[]
+  subscriptions       Subscription[]
+
+  @@map("client_profiles")
+}
+
+enum OnboardingStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// Staff Profile
+model StaffProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  employeeNumber  String    @unique
+  department      String?
+  position        String?
+  hireDate        DateTime?
+  licenseNumber   String?
+  licenseExpiry   DateTime?
+  commissionRate  Decimal?  @default(0)
+  isActive        Boolean   @default(true)
+  permissions     String[]  // Array of specific permissions
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("staff_profiles")
+}
+
+// Case Management
+model Case {
+  id                String      @id @default(cuid())
+  caseNumber        String      @unique
+  clientId          String
+  assignedAgentId   String?
+  createdById       String?
+  status            CaseStatus  @default(OPEN)
+  priority          Priority    @default(MEDIUM)
+  startDate         DateTime    @default(now())
+  endDate           DateTime?
+  expectedEndDate   DateTime?
+  description       String?     @db.Text
+  caseNotes         String?     @db.Text
+  totalDisputes     Int         @default(0)
+  successfulDisputes Int        @default(0)
+  progressPercentage Int        @default(0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  client            User        @relation(fields: [clientId], references: [id])
+  assignedAgent     User?       @relation("AssignedAgent", fields: [assignedAgentId], references: [id])
+  createdBy         User?       @relation("CreatedBy", fields: [createdById], references: [id])
+  disputes          Dispute[]
+  documents         Document[]
+  notes             Note[]
+  tasks             Task[]
+  timelineEvents    TimelineEvent[]
+  communications     Communication[]
+
+  @@map("cases")
+}
+
+enum CaseStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING_CLIENT
+  PENDING_BUREAU
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// Credit Reports
+model CreditReport {
+  id              String            @id @default(cuid())
+  clientId        String
+  bureau          CreditBureau
+  reportDate      DateTime
+  score           Int?
+  pullMethod      String?           // How the report was obtained
+  reportData      Json?             // Full report data (encrypted)
+  isVerified      Boolean           @default(false)
+  verifiedAt      DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  clientProfile    ClientProfile     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  accounts        CreditAccount[]
+  inquiries       CreditInquiry[]
+  publicRecords   PublicRecord[]
+
+  @@map("credit_reports")
+}
+
+enum CreditBureau {
+  EXPERIAN
+  EQUIFAX
+  TRANSUNION
+}
+
+// Credit Accounts
+model CreditAccount {
+  id              String              @id @default(cuid())
+  creditReportId  String
+  creditorName    String
+  accountNumber   String              // Encrypted
+  accountType     AccountType
+  status          AccountStatus
+  balance         Decimal?
+  limit           Decimal?
+  paymentStatus   PaymentStatus?
+  lastPaymentDate DateTime?
+  dateOpened      DateTime?
+  dateClosed      DateTime?
+  latePayments    Int                 @default(0)
+  daysLate        Int?
+  isDisputed      Boolean             @default(false)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  creditReport    CreditReport        @relation(fields: [creditReportId], references: [id], onDelete: Cascade)
+  disputes        Dispute[]
+
+  @@map("credit_accounts")
+}
+
+enum AccountType {
+  REVOLVING
+  INSTALLMENT
+  MORTGAGE
+  AUTO_LOAN
+  STUDENT_LOAN
+  COLLECTION
+  JUDGMENT
+  LIEN
+  BANKRUPTCY
+}
+
+enum AccountStatus {
+  CURRENT
+  LATE_30
+  LATE_60
+  LATE_90
+  LATE_120
+  CHARGE_OFF
+  COLLECTION
+  CLOSED
+  PAID_IN_FULL
+}
+
+enum PaymentStatus {
+  CURRENT
+  LATE
+  COLLECTION
+  CHARGE_OFF
+}
+
+// Credit Inquiries
+model CreditInquiry {
+  id              String            @id @default(cuid())
+  creditReportId  String
+  inquirerName    String
+  inquiryDate     DateTime
+  inquiryType     InquiryType
+  isDisputed      Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  creditReport    CreditReport      @relation(fields: [creditReportId], references: [id], onDelete: Cascade)
+  disputes        Dispute[]
+
+  @@map("credit_inquiries")
+}
+
+enum InquiryType {
+  HARD
+  SOFT
+}
+
+// Public Records
+model PublicRecord {
+  id              String            @id @default(cuid())
+  creditReportId  String
+  recordType      RecordType
+  courtName       String?
+  caseNumber      String?
+  filingDate      DateTime?
+  status          String?
+  amount          Decimal?
+  isDisputed      Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  creditReport    CreditReport      @relation(fields: [creditReportId], references: [id], onDelete: Cascade)
+  disputes        Dispute[]
+
+  @@map("public_records")
+}
+
+enum RecordType {
+  BANKRUPTCY
+  JUDGMENT
+  LIEN
+  COLLECTION
+}
+
+// Dispute Management
+model Dispute {
+  id              String            @id @default(cuid())
+  caseId          String
+  accountId       String?
+  inquiryId       String?
+  publicRecordId  String?
+  bureau          CreditBureau
+  disputeType     DisputeType
+  reason          String            @db.Text
+  customReason    String?           @db.Text
+  status          DisputeStatus     @default(DRAFT)
+  priority        Priority          @default(MEDIUM)
+  sentDate        DateTime?
+  responseDueDate DateTime?
+  responseDate    DateTime?
+  outcome         DisputeOutcome?
+  outcomeDetails  String?           @db.Text
+  followUpDate    DateTime?
+  templateUsed    String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  case            Case              @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  account         CreditAccount?    @relation(fields: [accountId], references: [id])
+  inquiry         CreditInquiry?    @relation(fields: [inquiryId], references: [id])
+  publicRecord    PublicRecord?     @relation(fields: [publicRecordId], references: [id])
+  documents       Document[]
+  communications  Communication[]
+  tasks           Task[]
+
+  @@map("disputes")
+}
+
+enum DisputeType {
+  ACCOUNT_NOT_MINE
+  INCORRECT_INFORMATION
+  OUTDATED_INFORMATION
+  FRAUDULENT_ACTIVITY
+  DUPLICATE_ACCOUNT
+  INCORRECT_STATUS
+  BALANCE_DISCREPANCY
+  LATE_PAYMENT_REMOVAL
+  INQUIRY_REMOVAL
+  PUBLIC_RECORD_REMOVAL
+}
+
+enum DisputeStatus {
+  DRAFT
+  PENDING_REVIEW
+  SENT_TO_BUREAU
+  BUREAU_RESPONSE
+  SUCCESSFUL
+  PARTIAL_SUCCESS
+  UNSUCCESSFUL
+  APPEAL_PENDING
+  CLOSED
+}
+
+enum DisputeOutcome {
+  DELETED
+  CORRECTED
+  VERIFIED
+  DISMISSED
+  PARTIAL_DELETE
+  PARTIAL_CORRECT
+}
+
+// Document Management
+model Document {
+  id              String            @id @default(cuid())
+  caseId          String?
+  clientId        String?
+  disputeId       String?
+  fileName        String
+  originalName    String
+  fileType        String
+  fileSize        Int
+  filePath        String
+  mimeType        String
+  description     String?           @db.Text
+  category        DocumentCategory
+  isEncrypted     Boolean           @default(true)
+  isPublic        Boolean           @default(false)
+  uploadedBy      String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  case            Case?             @relation(fields: [caseId], references: [id])
+  client          User?              @relation("DocumentClient", fields: [clientId], references: [id])
+  dispute         Dispute?          @relation(fields: [disputeId], references: [id])
+  uploader        User              @relation("DocumentUploader", fields: [uploadedBy], references: [id])
+
+  @@map("documents")
+}
+
+enum DocumentCategory {
+  ID_VERIFICATION
+  PROOF_OF_ADDRESS
+  CREDIT_REPORT
+  DISPUTE_LETTER
+  SUPPORTING_DOCUMENT
+  CONTRACT
+  PAYMENT_PROOF
+  CORRESPONDENCE
+  COURT_DOCUMENT
+  OTHER
+}
+
+// Communication Center
+model Communication {
+  id              String            @id @default(cuid())
+  caseId          String?
+  disputeId       String?
+  senderId        String
+  recipientId     String?
+  type            CommunicationType
+  subject         String?
+  content         String            @db.Text
+  direction       Direction         @default(OUTBOUND)
+  method          CommunicationMethod
+  status          CommunicationStatus @default(SENT)
+  scheduledFor    DateTime?
+  sentAt          DateTime?
+  readAt          DateTime?
+  externalId      String?           // For email/SMS integration
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  case            Case?             @relation(fields: [caseId], references: [id])
+  dispute         Dispute?          @relation(fields: [disputeId], references: [id])
+  sender          User              @relation("CommunicationSender", fields: [senderId], references: [id])
+  recipient       User?             @relation("CommunicationRecipient", fields: [recipientId], references: [id])
+
+  @@map("communications")
+}
+
+enum CommunicationType {
+  DISPUTE_LETTER
+  EMAIL
+  SMS
+  PHONE_CALL
+  CLIENT_UPDATE
+  INTERNAL_NOTE
+  SYSTEM_NOTIFICATION
+}
+
+enum Direction {
+  INBOUND
+  OUTBOUND
+}
+
+enum CommunicationMethod {
+  EMAIL
+  SMS
+  PHONE
+  MAIL
+  PORTAL
+  SYSTEM
+}
+
+enum CommunicationStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  BOUNCED
+}
+
+// Task Management
+model Task {
+  id              String            @id @default(cuid())
+  caseId          String?
+  disputeId       String?
+  assignedToId    String?
+  createdById     String
+  title           String
+  description     String?           @db.Text
+  type            TaskType
+  status          TaskStatus        @default(TODO)
+  priority        Priority          @default(MEDIUM)
+  dueDate         DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  case            Case?             @relation(fields: [caseId], references: [id])
+  dispute         Dispute?          @relation(fields: [disputeId], references: [id])
+  assignedTo      User?             @relation("TaskAssignee", fields: [assignedToId], references: [id])
+  createdBy       User              @relation("TaskCreator", fields: [createdById], references: [id])
+
+  @@map("tasks")
+}
+
+enum TaskType {
+  FOLLOW_UP
+  DOCUMENT_REQUEST
+  CLIENT_CONTACT
+  BUREAU_CONTACT
+  REVIEW
+  ADMINISTRATIVE
+  DISPUTE_PREPARATION
+  OUTCOME_REVIEW
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+// Notes
+model Note {
+  id              String    @id @default(cuid())
+  caseId          String?
+  clientId        String?
+  authorId        String
+  content         String    @db.Text
+  type            NoteType @default(GENERAL)
+  isInternal      Boolean   @default(true)
+  isPinned        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  case            Case?     @relation(fields: [caseId], references: [id])
+  client          User?      @relation("NoteClient", fields: [clientId], references: [id])
+  author          User      @relation("NoteAuthor", fields: [authorId], references: [id])
+
+  @@map("notes")
+}
+
+enum NoteType {
+  GENERAL
+  PHONE_CALL
+  MEETING
+  IMPORTANT
+  REMINDER
+  COMPLIANCE
+}
+
+// Timeline Events
+model TimelineEvent {
+  id              String            @id @default(cuid())
+  caseId          String
+  eventType       TimelineEventType
+  title           String
+  description     String?           @db.Text
+  userId          String?
+  metadata        Json?             // Additional event data
+  createdAt       DateTime          @default(now())
+
+  case            Case              @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@map("timeline_events")
+}
+
+enum TimelineEventType {
+  CASE_CREATED
+  STATUS_CHANGED
+  DISPUTE_SENT
+  DISPUTE_RESPONSE
+  DOCUMENT_UPLOADED
+  NOTE_ADDED
+  TASK_COMPLETED
+  CLIENT_CONTACT
+  PAYMENT_RECEIVED
+  MILESTONE_REACHED
+}
+
+// Notifications
+model Notification {
+  id              String            @id @default(cuid())
+  userId          String
+  title           String
+  message         String            @db.Text
+  type            NotificationType
+  isRead          Boolean           @default(false)
+  actionUrl       String?
+  actionText      String?
+  metadata        Json?
+  expiresAt       DateTime?
+  createdAt       DateTime          @default(now())
+  readAt          DateTime?
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  CASE_UPDATE
+  DISPUTE_OUTCOME
+  PAYMENT_DUE
+  SYSTEM_ALERT
+  CLIENT_MESSAGE
+  DOCUMENT_REQUEST
+  COMPLIANCE_REMINDER
+}
+
+// Subscription Management
+model Subscription {
+  id              String            @id @default(cuid())
+  clientId        String
+  planId          String
+  status          SubscriptionStatus @default(ACTIVE)
+  startDate       DateTime          @default(now())
+  endDate          DateTime?
+  billingCycle    BillingCycle
+  amount          Decimal
+  nextBillingDate  DateTime?
+  cancelledAt     DateTime?
+  cancellationReason String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  clientProfile    ClientProfile     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  payments        Payment[]
+
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  PAUSED
+  EXPIRED
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+}
+
+// Payment Processing
+model Payment {
+  id              String            @id @default(cuid())
+  clientId        String
+  subscriptionId  String?
+  amount          Decimal
+  currency        String            @default("USD")
+  status          PaymentStatus
+  paymentMethod   PaymentMethod
+  transactionId   String?           @unique
+  description     String?
+  dueDate         DateTime?
+  paidAt          DateTime?
+  failedAt        DateTime?
+  failureReason   String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  client          User              @relation(fields: [clientId], references: [id])
+  subscription    Subscription?     @relation(fields: [subscriptionId], references: [id])
+
+  @@map("payments")
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  CHECK
+  CASH
+  PAYPAL
+  STRIPE
+}
+
+// Audit Logs for Compliance
+model AuditLog {
+  id              String            @id @default(cuid())
+  userId          String?
+  action          String
+  resourceType    String
+  resourceId      String
+  oldValues       Json?
+  newValues       Json?
+  ipAddress       String?
+  userAgent       String?
+  timestamp       DateTime          @default(now())
+
+  user            User?             @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// System Settings
+model Setting {
+  id              String    @id @default(cuid())
+  key             String    @unique
+  value           String    @db.Text
+  description     String?
+  category        String?
+  isPublic        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("settings")
+}

@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Security checks
+npm run type-check
+npm run lint
+
+# Run tests if they exist
+# npm test
