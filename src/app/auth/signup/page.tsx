@@ -44,6 +44,12 @@ export default function SignUpPage() {
     }
 
     try {
+      console.log('Submitting signup:', {
+        name: formData.name,
+        email: formData.email,
+        passwordLength: formData.password.length,
+      });
+
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
@@ -56,13 +62,19 @@ export default function SignUpPage() {
         }),
       });
 
+      console.log('Signup response status:', response.status);
+
       if (response.ok) {
-        router.push('/auth/signin?message=Account created successfully');
+        const data = await response.json();
+        console.log('Signup success:', data);
+        router.push('/auth/signin?message=Account created successfully. Please check your email to verify your account.');
       } else {
         const data = await response.json();
+        console.error('Signup error:', data);
         setError(data.error || 'An error occurred');
       }
-    } catch {
+    } catch (error) {
+      console.error('Signup exception:', error);
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
