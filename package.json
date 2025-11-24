@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "start:migrate": "npx prisma db push --accept-data-loss && next start",
+    "start": "npx prisma db push --skip-generate && next start",
+    "start:no-migrate": "next start",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "type-check": "tsc --noEmit",
