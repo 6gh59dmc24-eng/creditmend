@@ -69,16 +69,14 @@ export function PerformanceMonitor() {
             console.log('LCP:', entry.startTime);
           }
           if (entry.entryType === 'first-input') {
-            const fidEntry = entry as PerformanceEventTiming
-            console.log('FID:', fidEntry.processingStart - fidEntry.startTime)
+            const fidEntry = entry as PerformanceEventTiming;
+            console.log('FID:', fidEntry.processingStart - fidEntry.startTime);
           }
           if (entry.entryType === 'layout-shift') {
-            const clsEntry = entry as unknown as { value: number; hadRecentInput: boolean }
-            if (!clsEntry.hadRecentInput) {
-              console.log('CLS:', clsEntry.value)
-            }
-          if (entry.entryType === 'layout-shift') {
-            const clsEntry = entry as any;
+            const clsEntry = entry as unknown as {
+              value: number;
+              hadRecentInput: boolean;
+            };
             if (!clsEntry.hadRecentInput) {
               console.log('CLS:', clsEntry.value);
             }
