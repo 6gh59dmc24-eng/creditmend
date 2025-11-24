@@ -42,8 +42,7 @@ export async function POST(request: NextRequest) {
 
     // Convert stored authenticators to the format expected by generateAuthenticationOptions
     const allowCredentials = user.authenticators.map(auth => ({
-      id: Buffer.from(auth.credentialID, 'base64'),
-      type: 'public-key' as const,
+      id: auth.credentialID, // Already stored as base64url string
       transports: auth.transports ? JSON.parse(auth.transports) : undefined,
     }));
 

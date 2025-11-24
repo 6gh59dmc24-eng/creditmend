@@ -52,10 +52,12 @@ export async function POST(request: NextRequest) {
         ? `http://localhost:${process.env.PORT || 3000}`
         : 'https://creditmend.org',
       expectedRPID: rpID,
-      authenticator: {
-        credentialID: Buffer.from(authenticator.credentialID, 'base64'),
-        credentialPublicKey: Buffer.from(authenticator.credentialPublicKey, 'base64'),
+      requireUserVerification: false,
+      credential: {
+        id: authenticator.credentialID,
+        publicKey: Buffer.from(authenticator.credentialPublicKey, 'base64'),
         counter: Number(authenticator.counter),
+        transports: authenticator.transports ? JSON.parse(authenticator.transports) : [],
       },
     });
 

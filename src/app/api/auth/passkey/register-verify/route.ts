@@ -50,16 +50,16 @@ export async function POST(request: NextRequest) {
     }
 
     const {
-      credentialID,
-      credentialPublicKey,
-      counter,
+      credential: credentialData,
       credentialDeviceType,
       credentialBackedUp,
     } = registrationInfo;
 
+    const { id: credentialID, publicKey: credentialPublicKey, counter } = credentialData;
+
     // Check if this credential already exists
     const existingCredential = await prisma.authenticator.findUnique({
-      where: { credentialID: Buffer.from(credentialID).toString('base64') },
+      where: { credentialID: typeof credentialID === 'string' ? credentialID : Buffer.from(credentialID).toString('base64') },
     });
 
     if (existingCredential) {
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     await prisma.authenticator.create({
       data: {
         userId: session.user.id,
-        credentialID: Buffer.from(credentialID).toString('base64'),
+        credentialID: typeof credentialID === 'string' ? credentialID : Buffer.from(credentialID).toString('base64'),
         credentialPublicKey: Buffer.from(credentialPublicKey).toString('base64'),
         counter: BigInt(counter),
         credentialDeviceType,

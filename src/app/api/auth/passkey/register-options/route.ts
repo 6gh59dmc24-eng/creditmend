@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const rpID = process.env.NEXTAUTH_URL?.includes('localhost')
       ? 'localhost'
       : 'creditmend.org';
-    const userID = session.user.id;
+    const userID = new TextEncoder().encode(session.user.id);
     const userName = session.user.email || 'user@creditmend.org';
     const userDisplayName = session.user.name || 'User';
 
