@@ -20,38 +20,52 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // Sample users for testing
-        const SAMPLE_USERS = {
-          'admin@creditrepair.com': {
-            password: 'Admin123!@#',
-            name: 'Admin User',
-            role: 'ADMIN',
-          },
-          'agent@creditrepair.com': {
-            password: 'Agent123!@#',
-            name: 'Agent User',
-            role: 'AGENT',
-          },
-          'client@creditrepair.com': {
-            password: 'Client123!@#',
-            name: 'Client User',
-            role: 'CLIENT',
-          },
-        };
+        try {
+          // Import bcrypt and prisma dynamically to avoid issues
+          const bcrypt = await import('bcryptjs');
+          const { prisma } = await import('@/lib/prisma');
 
-        const user =
-          SAMPLE_USERS[credentials.email as keyof typeof SAMPLE_USERS];
+          // Find user by email
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+            include: {
+              clientProfile: true,
+              staffProfile: true,
+            },
+          });
 
-        if (!user || user.password !== credentials.password) {
+          if (!user || !user.password) {
+            return null;
+          }
+
+          // Verify password
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+
+          if (!isPasswordValid) {
+            return null;
+          }
+
+          // Update last login
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { lastLoginAt: new Date() },
+          });
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            clientProfile: user.clientProfile,
+            staffProfile: user.staffProfile,
+          };
+        } catch (error) {
+          console.error('Auth error:', error);
           return null;
         }
-
-        return {
-          id: credentials.email,
-          email: credentials.email,
-          name: user.name,
-          role: user.role,
-        };
       },
     }),
   ],
