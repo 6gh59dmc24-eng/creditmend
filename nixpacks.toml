@@ -1,10 +1,15 @@
 [phases.setup]
 nixPkgs = ["nodejs", "openssl"]
 
+[phases.install]
+cmds = ["npm ci"]
+# Explicitly force cacheDirectories to empty to override default behavior
+cacheDirectories = []
+
 [phases.build]
-cmds = ["npm ci", "npx prisma generate", "npm run build"]
-# Completely disabled caching directories to avoid EBUSY/lock errors
-# cacheDirectories = [".next/cache", "node_modules/.cache"]
+cmds = ["npx prisma generate", "npm run build"]
+# Explicitly force cacheDirectories to empty here too
+cacheDirectories = []
 
 [start]
 cmd = "npm run start"
