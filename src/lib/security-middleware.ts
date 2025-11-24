@@ -152,10 +152,14 @@ export function middleware(request: NextRequest) {
   // Add security headers to response
   response.headers.set('X-Request-ID', SecurityUtils.generateSecureToken(16));
   response.headers.set('X-Rate-Limit-Limit', '100');
+
+  // Safely handle the unknown type from checkRateLimit return
+  const currentCount = (rateLimit as unknown as { count: number }).count || 0;
   response.headers.set(
     'X-Rate-Limit-Remaining',
-    Math.max(0, 100 - (rateLimit as { count: number }).count).toString()
+    Math.max(0, 100 - currentCount).toString()
   );
+
   response.headers.set(
     'X-Rate-Limit-Reset',
     new Date(rateLimit.resetTime).toISOString()
