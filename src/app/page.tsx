@@ -35,8 +35,25 @@ export default function LandingPage() {
               Financing
             </Link>
           </nav>
-          <div className="flex items-center gap-4">
-            <Link href="/auth/signin">
+          <div className="flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-2">
+              <Link href="/auth/signin">
+                <Button variant="outline" size="sm" className="text-xs">
+                  Personal Login
+                </Button>
+              </Link>
+              <Link href="/business/auth/signin">
+                <Button variant="outline" size="sm" className="text-xs">
+                  Business Login
+                </Button>
+              </Link>
+              <Link href="/wealth/auth/signin">
+                <Button variant="outline" size="sm" className="text-xs">
+                  Wealth Login
+                </Button>
+              </Link>
+            </div>
+            <Link href="/auth/signup" className="lg:hidden">
               <Button variant="ghost" className="text-sm font-medium">
                 Log in
               </Button>
@@ -108,7 +125,7 @@ export default function LandingPage() {
               {/* Personal Credit */}
               <div
                 id="personal"
-                className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col">
                 <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6">
                   <TrendingUp className="h-6 w-6 text-blue-600" />
                 </div>
@@ -120,7 +137,7 @@ export default function LandingPage() {
                   dispute negative items to help boost your personal credit
                   score effectively.
                 </p>
-                <ul className="space-y-3">
+                <ul className="space-y-3 mb-6 flex-1">
                   <li className="flex items-center text-sm text-gray-700">
                     <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
                     Error dispute & correction
@@ -134,12 +151,24 @@ export default function LandingPage() {
                     Personalized action plans
                   </li>
                 </ul>
+                <div className="flex gap-2">
+                  <Link href="/auth/signin" className="flex-1">
+                    <Button variant="outline" className="w-full">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/auth/signup" className="flex-1">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
               </div>
 
               {/* Business Credit */}
               <div
                 id="business"
-                className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col">
                 <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mb-6">
                   <Building2 className="h-6 w-6 text-purple-600" />
                 </div>
@@ -151,7 +180,7 @@ export default function LandingPage() {
                   business credit profile. We guide you through the
                   tier-building process.
                 </p>
-                <ul className="space-y-3">
+                <ul className="space-y-3 mb-6 flex-1">
                   <li className="flex items-center text-sm text-gray-700">
                     <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
                     EIN & Entity setup guidance
@@ -165,37 +194,60 @@ export default function LandingPage() {
                     Dun & Bradstreet registration
                   </li>
                 </ul>
+                <div className="flex gap-2">
+                  <Link href="/business/auth/signin" className="flex-1">
+                    <Button variant="outline" className="w-full">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/business/auth/signup" className="flex-1">
+                    <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
               </div>
 
-              {/* Financing */}
+              {/* Wealth Management */}
               <div
-                id="financing"
-                className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                id="wealth"
+                className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col">
                 <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mb-6">
                   <ShieldCheck className="h-6 w-6 text-green-600" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Business Financing
+                  Wealth Management
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Access the capital you need. We match your business with
-                  lenders and financing options tailored to your credit profile
-                  and needs.
+                  Professional wealth management and investment advisory services
+                  tailored to your financial goals and risk tolerance.
                 </p>
-                <ul className="space-y-3">
+                <ul className="space-y-3 mb-6 flex-1">
                   <li className="flex items-center text-sm text-gray-700">
                     <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Business loans & lines of credit
+                    Portfolio management & planning
                   </li>
                   <li className="flex items-center text-sm text-gray-700">
                     <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Equipment financing
+                    Retirement & estate planning
                   </li>
                   <li className="flex items-center text-sm text-gray-700">
                     <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    SBA loan assistance
+                    Tax optimization strategies
                   </li>
                 </ul>
+                <div className="flex gap-2">
+                  <Link href="/wealth/auth/signin" className="flex-1">
+                    <Button variant="outline" className="w-full">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/wealth/auth/signup" className="flex-1">
+                    <Button className="w-full bg-green-600 hover:bg-green-700">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
