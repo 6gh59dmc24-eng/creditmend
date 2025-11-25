@@ -187,7 +187,11 @@ export async function createBucket(
     allowedMimeTypes?: string[];
   }
 ) {
-  const { data, error } = await supabase.storage.createBucket(bucketName, options);
+  const { data, error } = await supabase.storage.createBucket(bucketName, {
+    public: options?.public ?? false,
+    fileSizeLimit: options?.fileSizeLimit,
+    allowedMimeTypes: options?.allowedMimeTypes,
+  });
 
   if (error) {
     throw new Error(`Failed to create bucket: ${error.message}`);
