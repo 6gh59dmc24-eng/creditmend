@@ -42,6 +42,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@simplewebauthn/browser": "^13.2.2",
     "@simplewebauthn/server": "^13.2.2",
+    "@supabase/supabase-js": "^2.84.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^7.0.4",
     "ai": "^5.0.101",
