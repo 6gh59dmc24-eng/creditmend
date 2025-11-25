@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { ClerkProvider } from '@clerk/nextjs';
 import { Providers } from '@/components/providers';
 import {
   GoogleAnalyticsScript,
@@ -116,18 +117,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <GoogleAnalyticsScript />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      </head>
-      <body className="antialiased font-sans">
-        <Providers>{children}</Providers>
-        <PerformanceMonitor />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <head>
+          <GoogleAnalyticsScript />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
+        </head>
+        <body className="antialiased font-sans">
+          <Providers>{children}</Providers>
+          <PerformanceMonitor />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

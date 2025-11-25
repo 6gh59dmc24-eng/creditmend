@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useUser, SignOutButton } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,18 +16,10 @@ import {
 } from 'lucide-react';
 
 export default function WealthDashboard() {
-  const { data: session, status } = useSession();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/wealth/auth/signin');
-    } else if (session?.user?.role !== 'WEALTH_CLIENT') {
-      router.push('/dashboard');
-    }
-  }, [status, session, router]);
-
-  if (status === 'loading') {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -49,14 +40,14 @@ export default function WealthDashboard() {
               <TrendingUp className="h-8 w-8 text-emerald-600" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Wealth Management Dashboard</h1>
-                <p className="text-sm text-gray-600">Welcome back, {session?.user?.name}</p>
+                <p className="text-sm text-gray-600">Welcome back, {user?.firstName || user?.username}</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => router.push('/api/auth/signout')}>
-              Sign Out
-            </Button>
+            <SignOutButton>
+              <Button variant="outline">
+                Sign Out
+              </Button>
+            </SignOutButton>
           </div>
         </div>
       </header>

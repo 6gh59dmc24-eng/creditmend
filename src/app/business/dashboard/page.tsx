@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { useUser, SignOutButton } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,19 +18,11 @@ import {
 } from 'lucide-react';
 
 export default function BusinessDashboard() {
-  const { data: session, status } = useSession();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/business/auth/signin');
-    } else if (session?.user?.role !== 'BUSINESS_CLIENT') {
-      router.push('/dashboard'); // Redirect to appropriate dashboard
-    }
-  }, [status, session, router]);
-
-  if (status === 'loading') {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -51,14 +43,14 @@ export default function BusinessDashboard() {
               <Building2 className="h-8 w-8 text-blue-600" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Business Credit Dashboard</h1>
-                <p className="text-sm text-gray-600">Welcome back, {session?.user?.name}</p>
+                <p className="text-sm text-gray-600">Welcome back, {user?.firstName || user?.username}</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => router.push('/api/auth/signout')}>
-              Sign Out
-            </Button>
+            <SignOutButton>
+              <Button variant="outline">
+                Sign Out
+              </Button>
+            </SignOutButton>
           </div>
         </div>
       </header>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { auth } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 
 const UPLOAD_DIR = './uploads';
 const ALLOWED_FILE_TYPES = [
@@ -24,8 +24,9 @@ function generateUniqueFilename(originalName: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session) {
+    // SECURITY: Strict auth check required for document upload (may contain PII)
+    const { userId } = await auth();
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

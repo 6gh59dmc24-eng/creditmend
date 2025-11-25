@@ -4,12 +4,11 @@ import { AccountList } from '@/components/dashboard/account-list';
 import { AiFinancialCoach } from '@/components/dashboard/ai-financial-coach';
 import { Button } from '@/components/ui/button';
 import { Bell, ChevronDown, Search } from 'lucide-react';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { currentUser } from '@clerk/nextjs/server';
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
-  const user = session?.user;
+  const user = await currentUser();
+  const userName = user?.firstName || user?.username || 'User';
 
   // Mock data - In a real app, this would come from your database
   const stats = {
@@ -109,7 +108,7 @@ export default async function DashboardPage() {
             <div className="h-8 w-8 bg-gray-200 rounded-full overflow-hidden">
               {/* User Avatar Placeholder */}
               <img
-                src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`}
+                src={user?.imageUrl || `https://ui-avatars.com/api/?name=${userName}&background=random`}
                 alt="User"
                 className="h-full w-full object-cover"
               />
@@ -122,7 +121,7 @@ export default async function DashboardPage() {
         {/* Welcome Section */}
         <div className="flex flex-col items-center justify-center text-center mb-12">
           <h1 className="text-4xl font-medium text-gray-900 mb-2">
-            Hello, {user?.name?.split(' ')[0] || 'Alex'}
+            Hello, {userName}
           </h1>
           <div className="flex items-center gap-2 text-3xl font-light text-gray-600">
             Here is your credit rate <span className="text-3xl">🙂</span>

@@ -2,16 +2,17 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { parseCreditReport } from '@/lib/credit-report-parser';
 import { DisputeAnalyzer } from '@/lib/dispute-analyzer';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 import type { Prisma } from '@prisma/client';
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { userId } = await auth();
 
-    // In a real app, strict auth check:
-    // if (!session) return new NextResponse("Unauthorized", { status: 401 })
+    // Strict auth check - required for PII/SSN handling
+    if (!userId) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
 
     const body = await req.json();
     const { content, clientId, caseId } = body;
@@ -27,8 +28,8 @@ export async function POST(req: Request) {
     ) as Prisma.JsonObject;
 
     // 2. Find or create the client (mock logic if clientId not provided)
-    // For now, we assume a valid clientId is passed, or we use the session user id if available
-    const targetClientId = clientId || session?.user?.id;
+    // For now, we assume a valid clientId is passed, or we use the Clerk userId if available
+    const targetClientId = clientId || userId;
 
     if (!targetClientId) {
       return new NextResponse('Client ID required', { status: 400 });

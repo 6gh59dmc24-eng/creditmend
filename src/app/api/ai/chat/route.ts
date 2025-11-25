@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@clerk/nextjs/server';
 import { getChatResponse } from '@/lib/ai';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { userId } = await auth();
 
     // Check authentication
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -27,7 +26,7 @@ export async function POST(req: NextRequest) {
     if (!currentSessionId) {
       const newSession = await prisma.chatSession.create({
         data: {
-          userId: session.user.id,
+          userId: userId,
           title: 'Financial Coaching',
         },
       });
